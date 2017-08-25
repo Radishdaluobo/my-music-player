@@ -19,6 +19,5 @@ function param(data) {
         data[k] !== undefined ? data[k] : ''
         params += '&' + k + '=' + encodeURIComponent(data[k])
     }
-    params = params.slice(1)
-    return params
+    return params ? params.slice(1) : ''
 }
