@@ -2,12 +2,20 @@
     <div class="recommend">
         <div class="recommend-content">
             <div class="" slider-wrapper>
-    
+                <slider>
+                    <ul>
+                        <li v-for="item in recommends">
+                            <a :href="item.linkUrl">
+                                <img :src="item.picUrl" />
+                            </a>
+                        </li>
+                    </ul>
+                </slider>
             </div>
             <div class="recommend-list">
                 <h1 class="list-title">热门歌单推荐</h1>
                 <ul>
-    
+
                 </ul>
             </div>
         </div>
@@ -15,22 +23,30 @@
 </template>
 
 <script>
-import getRecommend from '../../common/api/recommend'
-import { ERR_OK } from '../../common/api/config'
+import getRecommend from 'common/api/recommend'
+import { ERR_OK } from 'common/api/config'
+import Slider from 'base/slider/slider'
 
 export default {
+    data() {
+        return {
+            recommends: []
+        }
+    },
     created() {
         this._getRecommend()
     },
     methods: {
         _getRecommend() {
             getRecommend().then((res) => {
-                console.log(res.code, ERR_OK)
                 if (res.code === ERR_OK) {
-                    console.log('data', res.data.slider)
+                    this.recommends = res.data.slider
                 }
             })
         }
+    },
+    components: {
+        Slider
     }
 }
 </script>
