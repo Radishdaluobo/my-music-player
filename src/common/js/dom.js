@@ -1,5 +1,5 @@
-export default function addClass(el, className) {
-    if (!hasClass) {
+export function addClass(el, className) {
+    if (!hasClass(el, className)) {
         return
     }
     let newClass = el.className.split(' ')

@@ -8,7 +8,8 @@
 </template>
 
 <script>
-import BScroll from 'better-scroll'
+// import BScroll from 'better-scroll'
+import { addClass } from '../../common/js/dom.js'
 export default {
     props: {
         loop: {
@@ -39,11 +40,21 @@ export default {
     },
     methods: {
         _setSliderWidth() {
+            console.log('setSliderWidth')
             this.children = this.$refs.sliderGroup.children
+            console.log('this.children', this.children)
             let width = 0
+            let sliderWidth = this.$refs.slider.clientWidth
+            console.log(sliderWidth)
+            console.log(this.children.length)
             for (let i = 0; i < this.children.length; i++) {
                 let child = this.children[i]
+                addClass(child, 'slider-item')
+                child.style.width = sliderWidth + 'px'
+                width += sliderWidth
             }
+            this.loop ? width += 2 * sliderWidth : width
+            this.$refs.sliderGroup.style.width = width + 'px'
         },
         _initSlider() {
 
@@ -53,6 +64,16 @@ export default {
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
+@import "../../common/stylus/variable.styl"
 .slider
-
+    width: 100%
+    overflow :hidden
+    .slider-group
+        .slider-item
+            float: left
+            a 
+                display: inline-block
+                width:100%
+                img
+                    width:100%
 </style>

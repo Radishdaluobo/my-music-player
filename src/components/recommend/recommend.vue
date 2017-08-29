@@ -1,9 +1,10 @@
 <template>
     <div class="recommend">
         <div class="recommend-content">
-            <div class="" slider-wrapper>
+            <!--这里要保证recommends有内容才渲染,recommends取值是异步的-->
+            <div v-if="recommends.length" class="slider-wrapper">
                 <slider>
-                    <div v-for="item in recommends">
+                    <div v-for="item in recommends" class="slider-item">
                         <a :href="item.linkUrl">
                             <img :src="item.picUrl" />
                         </a>
