@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import getRecommend from 'common/api/recommend'
+import { getRecommend, getDiscList } from 'common/api/recommend'
 import { ERR_OK } from 'common/api/config'
 import Slider from 'base/slider/slider'
 
@@ -34,6 +34,7 @@ export default {
     },
     created() {
         this._getRecommend()
+        this._getDiscList()
     },
     methods: {
         _getRecommend() {
@@ -41,6 +42,11 @@ export default {
                 if (res.code === ERR_OK) {
                     this.recommends = res.data.slider
                 }
+            })
+        },
+        _getDiscList() {
+            getDiscList().then((res) => {
+                console.log(res)
             })
         }
     },

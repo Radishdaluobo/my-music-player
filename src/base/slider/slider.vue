@@ -4,8 +4,8 @@
             <slot>
             </slot>
         </div>
-        <div class="dot">
-            <span v-for="(item,index) in dots.length" :class="{'active' : currentPageIndex === index}" class="dot-item"></span>
+        <div class="dots">
+            <span v-for="(item,index) in dots.length" :class="{'active' : currentPageIndex === index}" class="dot"></span>
         </div>
     </div>
 </template>
@@ -40,11 +40,19 @@ export default {
             this._setSliderWidth()
             this._initDots()
             this._initSlider()
+            if (this.autoPlay) {
+                clearTimeout(this.timer)
+                this._play()
+            }
+            // 一般浏览器刷新是17ms一次，20ms是经验值
         }, 20)
-        // 一般浏览器刷新是17ms一次，20ms是经验值
+        window.addEventListener('resize', () => {
+            this._setSliderWidth(true)
+        })
+
     },
     methods: {
-        _setSliderWidth() {
+        _setSliderWidth(isResize) {
             this.children = this.$refs.sliderGroup.children
             let width = 0
             let sliderWidth = this.$refs.slider.clientWidth
@@ -54,7 +62,9 @@ export default {
                 child.style.width = sliderWidth + 'px'
                 width += sliderWidth
             }
-            this.loop ? width += 2 * sliderWidth : width
+            if (this.loop && !isResize) {
+                width += 2 * sliderWidth
+            }
             this.$refs.sliderGroup.style.width = width + 'px'
         },
         _initDots() {
@@ -64,7 +74,6 @@ export default {
             this.slider = new BScroll(this.$refs.slider, {
                 scrollX: true,
                 scrollY: false,
-                click: true,
                 momentum: false,
                 snap: true,
                 snapLoop: this.loop,
@@ -73,10 +82,20 @@ export default {
             })
             this.slider.on('scrollEnd', () => {
                 let currentPage = this.slider.getCurrentPage().pageX
-                // console.log('currentPage', currentPage)
                 this.currentPageIndex = currentPage
             })
+        },
+        _play() {
+            this.timer = setInterval(() => {
+                this.currentPageIndex++
+                this.currentPageIndex = this.currentPageIndex === 5 ? 0 : this.currentPageIndex
+                this.slider.goToPage(this.currentPageIndex, 0, 300, 'easing')
+            }, this.interval)
         }
+    },
+    destroyed() {
+        // 组件销毁的时候把定时器清空
+        clearTimeout(this.timer)
     }
 }
 </script>
@@ -86,6 +105,7 @@ export default {
 .slider
     width: 100%
     overflow :hidden
+    position: relative
     .slider-group
         .slider-item
             float: left
@@ -94,11 +114,20 @@ export default {
                 width:100%
                 img
                     width:100%
-    .dot
-        .dot-item
+    .dots
+        position: absolute
+        bottom: 10px
+        left: 0
+        right: 0
+        text-align :center
+        .dot
             display :inline-block
-            background :#fff
+            background :rgba(255,255,255,0.6)
             width: 6px
             height: 6px
             border-radius :50%
+            margin-right:5px
+        & .active
+            width: 10px
+            border-radius :3px
 </style>
