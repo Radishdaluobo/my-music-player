@@ -25,12 +25,13 @@ var app = express()
 var apiRoutes = express.Router()
 apiRoutes.get('/getDiscList', function(req, res) {
     // 通过真实的QQ服务器的地址
-    var url = 'https://c.y.qq.com/v8/fcg-bin/fcg_first_yqq.fcg'
+    var url = 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg'
     axios.get(url, {
         headers: {
-            referer: 'https://c.y.qq.com',
-            host: 'c.y.qq.cpm'
+            referer: 'https://c.y.qq.com/',
+            host: 'c.y.qq.com'
         },
+        // 浏览器请求/grtDiscList这个接口所带的参数
         params: req.query
     }).then((response) => {
         res.json(response.data)

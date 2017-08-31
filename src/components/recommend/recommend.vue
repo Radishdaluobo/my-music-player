@@ -13,8 +13,16 @@
             </div>
             <div class="recommend-list">
                 <h1 class="list-title">热门歌单推荐</h1>
-                <ul>
-    
+                <ul class="dis-container">
+                    <li class="list-item" v-for="item in discList">
+                        <div class="list-image">
+                            <img width="60" height="60"  :src="item.imgurl" />
+                        </div>
+                        <div class="list-content">
+                            <h3 class="name" v-html="item.creator.name"></h3>
+                            <p class="desc" v-html="item.dissname"></p>
+                        </div>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -29,7 +37,8 @@ import Slider from 'base/slider/slider'
 export default {
     data() {
         return {
-            recommends: []
+            recommends: [],
+            discList: []
         }
     },
     created() {
@@ -46,7 +55,9 @@ export default {
         },
         _getDiscList() {
             getDiscList().then((res) => {
-                console.log(res)
+                if (res.code === ERR_OK) {
+                    this.discList = res.data.list
+                }
             })
         }
     },
@@ -67,7 +78,31 @@ export default {
             text-align :center
             font-size :14px
             color :$color-theme
-
-
+        .dis-container
+            padding:10px 15px
+            .list-item
+                display:flex
+                box-sizing: border-box
+                // 下面一条,定义子元素项目在交叉上如何对齐
+                align-items: center
+                .list-image
+                    flex:0 0 60px
+                    img
+                        width: 100%
+                .list-content
+                    padding-left:15px 
+                    flex:1
+                    // 垂直居中,下面三天,炒鸡简单
+                    display:flex
+                    flex-direction: column
+                    justify-content: center
+                    font-size: $font-size-medium
+                    line-height: 20px
+                    overflow: hidden
+                    .name
+                        margin-bottom: 10px
+                        color: $color-text
+                    .desc
+                        color: $color-text-d
 
 </style>
