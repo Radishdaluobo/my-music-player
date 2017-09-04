@@ -1,37 +1,40 @@
 <template>
     <div class="recommend">
-        <div class="recommend-content">
+        <Scroll class="recommend-content" :data="discList">
             <!--这里要保证recommends有内容才渲染,recommends取值是异步的-->
-            <div v-if="recommends.length" class="slider-wrapper">
-                <slider>
-                    <div v-for="item in recommends" class="slider-item">
-                        <a :href="item.linkUrl">
-                            <img :src="item.picUrl" />
-                        </a>
-                    </div>
-                </slider>
-            </div>
-            <div class="recommend-list">
-                <h1 class="list-title">热门歌单推荐</h1>
-                <ul class="dis-container">
-                    <li class="list-item" v-for="item in discList">
-                        <div class="list-image">
-                            <img width="60" height="60"  :src="item.imgurl" />
+            <div>
+                <div v-if="recommends.length" class="slider-wrapper">
+                    <slider>
+                        <div v-for="item in recommends" class="slider-item">
+                            <a :href="item.linkUrl">
+                                <img :src="item.picUrl" />
+                            </a>
                         </div>
-                        <div class="list-content">
-                            <h3 class="name" v-html="item.creator.name"></h3>
-                            <p class="desc" v-html="item.dissname"></p>
-                        </div>
-                    </li>
-                </ul>
+                    </slider>
+                </div>
+                <div class="recommend-list">
+                    <h1 class="list-title">热门歌单推荐</h1>
+                    <ul class="dis-container">
+                        <li class="list-item" v-for="item in discList">
+                            <div class="list-image">
+                                <img width="60" height="60" :src="item.imgurl" />
+                            </div>
+                            <div class="list-content">
+                                <h3 class="name" v-html="item.creator.name"></h3>
+                                <p class="desc" v-html="item.dissname"></p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
+        </Scroll>
     </div>
 </template>
 
 <script>
 import { getRecommend, getDiscList } from 'common/api/recommend'
 import { ERR_OK } from 'common/api/config'
+import Scroll from 'base/scroll/scroll'
 import Slider from 'base/slider/slider'
 
 export default {
@@ -62,7 +65,8 @@ export default {
         }
     },
     components: {
-        Slider
+        Slider,
+        Scroll
     }
 }
 </script>
