@@ -1,25 +1,25 @@
 <template>
     <div class="recommend">
-        <Scroll class="recommend-content" :data="discList">
+        <Scroll class="recommend-content" ref="scroll" :data="discList">
             <!--这里要保证recommends有内容才渲染,recommends取值是异步的-->
             <div>
                 <div v-if="recommends.length" class="slider-wrapper">
                     <slider>
                         <div v-for="item in recommends" class="slider-item">
                             <a :href="item.linkUrl">
-                                <img :src="item.picUrl" />
+                                <img @load="loadImage()" :src="item.picUrl" />
                             </a>
                         </div>
                     </slider>
                 </div>
                 <div class="recommend-list">
                     <h1 class="list-title">热门歌单推荐</h1>
-                    <ul class="dis-container">
-                        <li class="list-item" v-for="item in discList">
-                            <div class="list-image">
-                                <img width="60" height="60" :src="item.imgurl" />
+                    <ul>
+                        <li class="item" v-for="item in discList">
+                            <div class="icon">
+                                <img width="60" height="60" v-lazy="item.imgurl" />
                             </div>
-                            <div class="list-content">
+                            <div class="text">
                                 <h3 class="name" v-html="item.creator.name"></h3>
                                 <p class="desc" v-html="item.dissname"></p>
                             </div>
@@ -62,6 +62,12 @@ export default {
                     this.discList = res.data.list
                 }
             })
+        },
+        loadImage() {
+            if (!this.imageLoadCheck) {
+                this.$refs.scroll.refresh()
+                this.imageLoadCheck = true
+            }
         }
     },
     components: {
@@ -72,41 +78,54 @@ export default {
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
-    @import "../../common/stylus/variable.styl"
-.recommend
-    .recommend-content
-    .recommend-list
-        .list-title
-            height:65px
-            line-height:65px
-            text-align :center
-            font-size :14px
-            color :$color-theme
-        .dis-container
-            padding:10px 15px
-            .list-item
-                display:flex
-                box-sizing: border-box
-                // 下面一条,定义子元素项目在交叉上如何对齐
-                align-items: center
-                .list-image
-                    flex:0 0 60px
-                    img
-                        width: 100%
-                .list-content
-                    padding-left:15px 
-                    flex:1
-                    // 垂直居中,下面三天,炒鸡简单
-                    display:flex
-                    flex-direction: column
-                    justify-content: center
-                    font-size: $font-size-medium
-                    line-height: 20px
-                    overflow: hidden
-                    .name
-                        margin-bottom: 10px
-                        color: $color-text
-                    .desc
-                        color: $color-text-d
+  @import "../../common/stylus/variable.styl"
 
+  .recommend
+    position: fixed
+    width: 100%
+    top: 88px
+    bottom: 0
+    .recommend-content
+      height: 100%
+      overflow: hidden
+      .slider-wrapper
+        position: relative
+        width: 100%
+        overflow: hidden
+      .recommend-list
+        .list-title
+          height: 65px
+          line-height: 65px
+          text-align: center
+          font-size: $font-size-medium
+          color: $color-theme
+        .item
+          display: flex
+          box-sizing: border-box
+          // 下面一条,定义子元素项目在交叉上如何对齐
+          align-items: center
+          padding: 0 20px 20px 20px
+          .icon
+            flex: 0 0 60px
+            width: 60px
+            padding-right: 20px
+          .text
+          // 垂直居中,下面三条,炒鸡简单
+            display: flex
+            flex-direction: column
+            justify-content: center
+            flex: 1
+            line-height: 20px
+            overflow: hidden
+            font-size: $font-size-medium
+            .name
+              margin-bottom: 10px
+              color: $color-text
+            .desc
+              color: $color-text-d
+      .loading-container
+        position: absolute
+        width: 100%
+        top: 50%
+        transform: translateY(-50%)
 </style>
