@@ -87,6 +87,7 @@ export default {
   @import "../../common/stylus/variable.styl"
 
   .recommend
+  // 这样是为了Bscroll中给父容器一个固定高度
     position: fixed
     width: 100%
     top: 88px
