@@ -7,7 +7,7 @@
                     <slider>
                         <div v-for="item in recommends" class="slider-item">
                             <a :href="item.linkUrl">
-                                <img @load="loadImage()" :src="item.picUrl" />
+                                <img class="needsclick" @load="loadImage()" :src="item.picUrl" />
                             </a>
                         </div>
                     </slider>
@@ -27,6 +27,9 @@
                     </ul>
                 </div>
             </div>
+            <div class="loading-container" v-show="!discList.length">
+                <Loading></Loading>
+            </div>
         </Scroll>
     </div>
 </template>
@@ -36,6 +39,7 @@ import { getRecommend, getDiscList } from 'common/api/recommend'
 import { ERR_OK } from 'common/api/config'
 import Scroll from 'base/scroll/scroll'
 import Slider from 'base/slider/slider'
+import Loading from 'base/loading/loading'
 
 export default {
     data() {
@@ -47,6 +51,7 @@ export default {
     created() {
         this._getRecommend()
         this._getDiscList()
+
     },
     methods: {
         _getRecommend() {
@@ -72,7 +77,8 @@ export default {
     },
     components: {
         Slider,
-        Scroll
+        Scroll,
+        Loading
     }
 }
 </script>
@@ -124,6 +130,7 @@ export default {
             .desc
               color: $color-text-d
       .loading-container
+      // div在div中的垂直居中
         position: absolute
         width: 100%
         top: 50%
