@@ -1,6 +1,8 @@
 <template>
     <div class="singer">
-        singer
+        <div v-for="item in singers">
+            <div>{{item.title}}</div>
+        </div>
     </div>
 </template>
 
@@ -35,14 +37,43 @@ export default {
                     item: []
                 }
             }
-            // let singer = {}
             list.forEach((item, index) => {
-                if (map.hot.item.length < HOT_SINGER_LEN) {
-                    map.hot.item.push(new Singer(item.Fsinger_mid, item.Fsinger_name))
+                if (index < HOT_SINGER_LEN) {
+                    map.hot.item.push(
+                        new Singer(item.Fsinger_mid, item.Fsinger_name)
+                    )
+                }
+                let key = item.Findex
+                if (!map[key]) {
+                    map[key] = {
+                        title: key,
+                        item: []
+                    }
+                }
+                if (item.Findex === key) {
+                    map[key].item.push(
+                        new Singer(item.Fsinger_mid, item.Fsinger_name)
+                    )
                 }
             })
-             console.log(map.hot)
 
+            // 为了得到有序列表,需要处理一下map
+            let ret = []
+            let hot = []
+            for (let key in map) {
+                let val = map[key]
+                if (val.title.match(/[a-zA-Z]/)) {
+                    ret.push(val)
+                } else if (val.title === HOT_NAME) {
+                    hot.push(val)
+                }
+            }
+            ret.sort((a, b) => {
+                return a.title.charCodeAt(0) - b.title.charCodeAt(0)
+            })
+            let singer = hot.concat(ret)
+            this.singers = singer
+            // console.log(map)
         }
     }
 }
