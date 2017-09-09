@@ -1,5 +1,5 @@
 import jsonp from '../common/js/jsonp'
-import { commonParams, options } from '../common/api/config'
+import { commonParams, options } from '../common/js/config'
 
 export function getSingerList() {
     const url = 'https://c.y.qq.com/v8/fcg-bin/v8.fcg?'

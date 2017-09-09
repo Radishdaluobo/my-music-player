@@ -36,7 +36,6 @@ export default {
                 probeType: this.probeType,
                 click: this.click
             })
-            console.log(this.scroll)
         },
         enable() {
             this.scroll && this.scroll.enable()

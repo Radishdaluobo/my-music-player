@@ -80,7 +80,6 @@ export default {
                 snapThreshold: 0.3,
                 snapSpeed: 400
             })
-            console.log(this.slider)
             this.slider.on('scrollEnd', () => {
                 let currentPage = this.slider.getCurrentPage().pageX
                 this.currentPageIndex = currentPage

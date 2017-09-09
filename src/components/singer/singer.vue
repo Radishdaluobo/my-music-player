@@ -6,7 +6,7 @@
 
 <script>
 import { getSingerList } from '../../api/singer'
-import { ERR_OK } from 'common/api/config'
+import { ERR_OK } from 'common/js/config'
 export default {
     data() {
         return {
@@ -20,7 +20,7 @@ export default {
         _getSingerList() {
             getSingerList().then((res) => {
                 if (res.code === ERR_OK) {
-                    console.log(res)
+                    console.log(res.data.list)
                 }
             })
         }
