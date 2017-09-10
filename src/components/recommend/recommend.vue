@@ -117,7 +117,7 @@ export default {
             width: 60px
             padding-right: 20px
           .text
-          // 垂直居中,下面三条,炒鸡简单
+          // 垂直居中,下面三条,炒鸡简单,三行,散布居中
             display: flex
             flex-direction: column
             justify-content: center

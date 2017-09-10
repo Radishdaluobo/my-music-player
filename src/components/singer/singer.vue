@@ -1,8 +1,6 @@
 <template>
     <div class="singer">
-        <div v-for="item in singers">
-            <div>{{item.title}}</div>
-        </div>
+        <listvue :data="singers"></listvue>
     </div>
 </template>
 
@@ -10,6 +8,8 @@
 import { getSingerList } from '../../api/singer'
 import { ERR_OK } from 'common/js/config'
 import Singer from 'common/js/singer'
+import listvue from '../../base/listview/listvue'
+
 const HOT_NAME = '热门歌手'
 const HOT_SINGER_LEN = 10
 export default {
@@ -25,8 +25,7 @@ export default {
         _getSingerList() {
             getSingerList().then((res) => {
                 if (res.code === ERR_OK) {
-                    console.log(res.data.list)
-                    this._normalizeSinger(res.data.list)
+                    this.singers = this._normalizeSinger(res.data.list)
                 }
             })
         },
@@ -60,21 +59,27 @@ export default {
             // 为了得到有序列表,需要处理一下map
             let ret = []
             let hot = []
+            let other = []
             for (let key in map) {
                 let val = map[key]
                 if (val.title.match(/[a-zA-Z]/)) {
                     ret.push(val)
                 } else if (val.title === HOT_NAME) {
                     hot.push(val)
+                } else {
+                    other.push(val)
+                    other[0].title = '#'
                 }
             }
             ret.sort((a, b) => {
                 return a.title.charCodeAt(0) - b.title.charCodeAt(0)
             })
-            let singer = hot.concat(ret)
-            this.singers = singer
-            // console.log(map)
+            let singer = hot.concat(ret).concat(other)
+            return singer
         }
+    },
+    components: {
+        listvue
     }
 }
 </script>
