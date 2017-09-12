@@ -11,6 +11,11 @@
                 </ul>
             </li>
         </ul>
+        <div class="list-shortcut">
+            <ul>
+                <li v-for="(item,index) in shortcutList">{{item}}</li>
+            </ul>
+        </div>
     </Scroll>
 </template>
 
@@ -21,6 +26,13 @@ export default {
         data: {
             type: Array,
             default: []
+        }
+    },
+    computed: {
+        shortcutList() {
+            return this.data.map((item, index) => {
+                return item.title.substr(0, 1)
+            })
         }
     },
     // 为了保证DOM已经渲染完成
