@@ -1,7 +1,7 @@
 <template>
-    <Scroll :data="data" class="list-view">
+    <Scroll :data="data" class="list-view" ref="listvue">
         <ul class="list-group">
-            <li v-for="listGroup in data">
+            <li v-for="listGroup in data" ref="listGroup">
                 <h2 class="group-title">{{listGroup.title}}</h2>
                 <ul>
                     <li v-for="item in listGroup.item" class="list-item">
@@ -11,9 +11,9 @@
                 </ul>
             </li>
         </ul>
-        <div class="list-shortcut">
+        <div class="list-shortcut" @touchstart.top.prevent="onShortcutTouchStart" @touchmove.top.prevent="onShortcutTouchMove">
             <ul>
-                <li v-for="(item,index) in shortcutList">{{item}}</li>
+                <li v-for="(item,index) in shortcutList" class="item" :data-index="index"  :class="{'current':currentIndex === index}">{{item}}</li>
             </ul>
         </div>
     </Scroll>
@@ -21,11 +21,22 @@
 
 <script>
 import Scroll from 'base/scroll/scroll'
+import { getData } from 'common/js/dom.js'
+const ANCHOR_HEIGHT = 18
 export default {
     props: {
         data: {
             type: Array,
             default: []
+        }
+    },
+    created() {
+        // 这里声明这个空对象是因为下面两个函数之间需要公用一些变量
+        this.touch = {}
+    },
+    data() {
+        return {
+            currentIndex: 0
         }
     },
     computed: {
@@ -38,6 +49,29 @@ export default {
     // 为了保证DOM已经渲染完成
     mounted() {
 
+    },
+    methods: {
+        onShortcutTouchStart(e) {
+            let anchorIndex = getData(e.target, 'index')
+            this.currentIndex = anchorIndex
+            console.log(this.currentIndex)
+            // e.touches获得触碰的手指,[0]触碰的第一个手指的位置
+            let firstTouch = e.touches[0]
+            this.touch.y1 = firstTouch.pageY
+            this.touch.anchorIndex = anchorIndex
+            this._scrollTo(anchorIndex)
+        },
+        onShortcutTouchMove(e) {
+            let firstTouch = e.touches[0]
+            this.touch.y2 = firstTouch.pageY
+            // | 向下取整,跟Math.floor一样
+            let delta = (this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT | 0
+            let goToAnchorIndex = parseInt(this.touch.anchorIndex) + parseInt(delta)
+            this._scrollTo(goToAnchorIndex)
+        },
+        _scrollTo(index) {
+            this.$refs.listvue.scrollToElement(this.$refs.listGroup[index], 0)
+        }
     },
     components: {
         Scroll
@@ -52,6 +86,7 @@ export default {
         height: 100%
         overflow :hidden //i
         background :$color-background
+        position :relative
         .list-group
             padding-bottom: 30px
             .group-title
@@ -74,4 +109,23 @@ export default {
                     margin-left: 20px
                     color: $color-text-l
                     font-size: $font-size-medium
+        .list-shortcut
+            position :absolute
+            right: 10px
+            top:50%
+            transform :translateY(-50%)
+            font-size :$font-size-small
+            width: 20px
+            padding: 20px 0
+            border-radius: 10px
+            text-align: center
+            background: $color-background-d
+            font-family: Helvetica
+            z-index : 30
+            .item
+                padding: 3px
+                line-height: 1
+                color: $color-text-l
+                &.current
+                    color: $color-theme
 </style>

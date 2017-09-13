@@ -8,7 +8,10 @@ import Search from 'components/search/search'
 Vue.use(VueRouter)
 
 export default new VueRouter({
-    routes: [
+    routes: [{
+            path: '/',
+            redirect: '/recommend'
+        },
         {
             path: '/recommend',
             component: Recommend
