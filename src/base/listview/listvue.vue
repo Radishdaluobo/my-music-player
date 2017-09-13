@@ -1,5 +1,5 @@
 <template>
-    <Scroll :data="data" class="list-view" ref="listvue">
+    <Scroll @scroll="scroll" :data="data" class="list-view" ref="listvue" :listenScroll="listenScroll">
         <ul class="list-group">
             <li v-for="listGroup in data" ref="listGroup">
                 <h2 class="group-title">{{listGroup.title}}</h2>
@@ -13,7 +13,7 @@
         </ul>
         <div class="list-shortcut" @touchstart.top.prevent="onShortcutTouchStart" @touchmove.top.prevent="onShortcutTouchMove">
             <ul>
-                <li v-for="(item,index) in shortcutList" class="item" :data-index="index"  :class="{'current':currentIndex === index}">{{item}}</li>
+                <li v-for="(item,index) in shortcutList" class="item" :data-index="index" :class="{'current':currentIndex === index}">{{item}}</li>
             </ul>
         </div>
     </Scroll>
@@ -33,6 +33,7 @@ export default {
     created() {
         // 这里声明这个空对象是因为下面两个函数之间需要公用一些变量
         this.touch = {}
+        this.listenScroll = true
     },
     data() {
         return {
@@ -69,7 +70,12 @@ export default {
             let goToAnchorIndex = parseInt(this.touch.anchorIndex) + parseInt(delta)
             this._scrollTo(goToAnchorIndex)
         },
+        scroll(pos) {
+            console.log(111111)
+            console.log(pos.y)
+        },
         _scrollTo(index) {
+            // 第二个参数的意义是滚动的动画时长
             this.$refs.listvue.scrollToElement(this.$refs.listGroup[index], 0)
         }
     },
