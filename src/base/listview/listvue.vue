@@ -71,7 +71,6 @@ export default {
             this._scrollTo(goToAnchorIndex)
         },
         scroll(pos) {
-            console.log(111111)
             console.log(pos.y)
         },
         _scrollTo(index) {

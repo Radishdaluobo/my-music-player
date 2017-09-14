@@ -32,7 +32,7 @@ export default {
                 return
             }
             this._initScroll()
-        })
+        }, 20)
     },
     methods: {
         _initScroll() {
