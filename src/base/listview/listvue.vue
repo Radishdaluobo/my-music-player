@@ -55,7 +55,6 @@ export default {
         onShortcutTouchStart(e) {
             let anchorIndex = getData(e.target, 'index')
             this.currentIndex = anchorIndex
-            console.log(this.currentIndex)
             // e.touches获得触碰的手指,[0]触碰的第一个手指的位置
             let firstTouch = e.touches[0]
             this.touch.y1 = firstTouch.pageY
@@ -63,6 +62,9 @@ export default {
             this._scrollTo(anchorIndex)
         },
         onShortcutTouchMove(e) {
+            // let anchorIndex2 = getData(e.target, 'index')
+            // console.log('anchorIndex2', anchorIndex2)
+            // 以上不可, e.target只能取到鼠标touchstart选中的节点
             let firstTouch = e.touches[0]
             this.touch.y2 = firstTouch.pageY
             // | 向下取整,跟Math.floor一样
@@ -71,7 +73,24 @@ export default {
             this._scrollTo(goToAnchorIndex)
         },
         scroll(pos) {
-            console.log(pos.y)
+            let scrollHieght = -pos.y
+            // console.log(pos.y)
+            let heightList = []
+            let listGroupDOM = this.$refs.listGroup
+            let sumHeight = 0
+            heightList.push(sumHeight)
+            for (let i = 0; i < listGroupDOM.length; i++) {
+                let liHeight = listGroupDOM[i].clientHeight
+                sumHeight += liHeight
+                heightList.push(sumHeight)
+            }
+            // console.log(heightList)
+            for (let i = 0; i < heightList.length; i++) {
+                if (scrollHieght >= heightList[i] && scrollHieght < heightList[i + 1]) {
+                    this.currentIndex = i
+                }
+            }
+
         },
         _scrollTo(index) {
             // 第二个参数的意义是滚动的动画时长
