@@ -16,6 +16,9 @@
                 <li v-for="(item,index) in shortcutList" class="item" :data-index="index" :class="{'current':currentIndex === index}">{{item}}</li>
             </ul>
         </div>
+        <div class="list-fixed" ref="fixed" v-show="fixedTitle">
+            <div class="fixed-title">{{fixedTitle}}</div>
+        </div>
     </Scroll>
 </template>
 
@@ -48,6 +51,12 @@ export default {
             return this.data.map((item, index) => {
                 return item.title.substr(0, 1)
             })
+        },
+        fixedTitle() {
+            if (this.scrollY > 0) {
+                return ''
+            }
+            return this.data[this.currentIndex] ? this.data[this.currentIndex].title : ''
         }
     },
     // 为了保证DOM已经渲染完成
@@ -78,6 +87,15 @@ export default {
         scroll(pos) {
             this.scrollY = pos.y
         },
+        _scrollTo(index) {
+            // 避免点到A跟#边缘的地方,index为null,后面会报错
+            if (!index && index !== 0) {
+                return
+            }
+            this.currentIndex = index
+            // 第二个参数的意义是滚动的动画时长
+            this.$refs.listvue.scrollToElement(this.$refs.listGroup[index], 0)
+        },
         _caculateHeight() {
             this.listHeight = []
             const list = this.$refs.listGroup
@@ -88,10 +106,6 @@ export default {
                 height += item.clientHeight
                 this.listHeight.push(height)
             }
-        },
-        _scrollTo(index) {
-            // 第二个参数的意义是滚动的动画时长
-            this.$refs.listvue.scrollToElement(this.$refs.listGroup[index], 0)
         }
     },
     watch: {
@@ -105,15 +119,21 @@ export default {
         // 观测scrollY的变化
         scrollY(newY) {
             const listHeight = this.listHeight
+            // newY>0
+            if (newY >= 0) {
+                this.currentIndex = 0
+                return
+            }
+            // 在中间部分滚动
             for (let i = 0; i < listHeight.length; i++) {
                 let height1 = listHeight[i]
                 let height2 = listHeight[i + 1]
+                console.log(i, newY, height1, height2, listHeight.length)
                 if (!height2 || -newY >= height1 && -newY < height2) {
                     this.currentIndex = i
                     return
                 }
             }
-            this.currentIndex = 0
         }
     },
     components: {
@@ -138,7 +158,7 @@ export default {
                 color: $color-text-l
                 background: $color-highlight-background
                 line-height: 30px
-                padding-left: 10px
+                padding-left: 20px
             .list-item
                 // 一行在div中的垂直居中
                 display: flex
@@ -171,4 +191,16 @@ export default {
                 color: $color-text-l
                 &.current
                     color: $color-theme
+        .list-fixed
+            position: absolute
+            top: 0
+            left: 0
+            width: 100%
+            .fixed-title
+                height: 30px
+                line-height: 30px
+                padding-left: 20px
+                font-size: $font-size-small
+                color: $color-text-l
+                background: $color-highlight-background  
 </style>
