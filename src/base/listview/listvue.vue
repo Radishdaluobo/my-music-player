@@ -1,5 +1,5 @@
 <template>
-    <Scroll @scroll="scroll" :data="data" class="list-view" ref="listvue" :listenScroll="listenScroll">
+    <Scroll @scroll="scroll" :data="data" class="list-view" ref="listvue" :listenScroll="listenScroll" :probeType="probeType">
         <ul class="list-group">
             <li v-for="listGroup in data" ref="listGroup">
                 <h2 class="group-title">{{listGroup.title}}</h2>
@@ -34,10 +34,13 @@ export default {
         // 这里声明这个空对象是因为下面两个函数之间需要公用一些变量
         this.touch = {}
         this.listenScroll = true
+        this.listHeight = []
+        this.probeType = 3
     },
     data() {
         return {
-            currentIndex: 0
+            currentIndex: 0,
+            scrollY: -1
         }
     },
     computed: {
@@ -54,7 +57,7 @@ export default {
     methods: {
         onShortcutTouchStart(e) {
             let anchorIndex = getData(e.target, 'index')
-            this.currentIndex = anchorIndex
+            this.currentIndex = parseInt(anchorIndex)
             // e.touches获得触碰的手指,[0]触碰的第一个手指的位置
             let firstTouch = e.touches[0]
             this.touch.y1 = firstTouch.pageY
@@ -73,28 +76,44 @@ export default {
             this._scrollTo(goToAnchorIndex)
         },
         scroll(pos) {
-            let scrollHieght = -pos.y
-            // console.log(pos.y)
-            let heightList = []
-            let listGroupDOM = this.$refs.listGroup
-            let sumHeight = 0
-            heightList.push(sumHeight)
-            for (let i = 0; i < listGroupDOM.length; i++) {
-                let liHeight = listGroupDOM[i].clientHeight
-                sumHeight += liHeight
-                heightList.push(sumHeight)
+            this.scrollY = pos.y
+        },
+        _caculateHeight() {
+            this.listHeight = []
+            const list = this.$refs.listGroup
+            let height = 0
+            this.listHeight.push(height)
+            for (let i = 0; i < list.length; i++) {
+                let item = list[i]
+                height += item.clientHeight
+                this.listHeight.push(height)
             }
-            // console.log(heightList)
-            for (let i = 0; i < heightList.length; i++) {
-                if (scrollHieght >= heightList[i] && scrollHieght < heightList[i + 1]) {
-                    this.currentIndex = i
-                }
-            }
-
         },
         _scrollTo(index) {
             // 第二个参数的意义是滚动的动画时长
             this.$refs.listvue.scrollToElement(this.$refs.listGroup[index], 0)
+        }
+    },
+    watch: {
+        // 监听data的变化,延时计算dom的高度,因为获取数据到dom渲染有一点的延迟,
+        // 一般用$nextTick,为了确保所有手机兼容性,用setTimeout()
+        data() {
+            setTimeout(() => {
+                this._caculateHeight()
+            }, 20)
+        },
+        // 观测scrollY的变化
+        scrollY(newY) {
+            const listHeight = this.listHeight
+            for (let i = 0; i < listHeight.length; i++) {
+                let height1 = listHeight[i]
+                let height2 = listHeight[i + 1]
+                if (!height2 || -newY >= height1 && -newY < height2) {
+                    this.currentIndex = i
+                    return
+                }
+            }
+            this.currentIndex = 0
         }
     },
     components: {
