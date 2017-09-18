@@ -4,7 +4,7 @@
             <li v-for="listGroup in data" ref="listGroup">
                 <h2 class="group-title">{{listGroup.title}}</h2>
                 <ul>
-                    <li v-for="item in listGroup.item" class="list-item">
+                    <li v-for="item in listGroup.item" class="list-item" @click="selectItem(item)">
                         <img width="50" height="50" class="avatar" v-lazy="item.avatar" />
                         <span class="singer-name">{{item.name}}</span>
                     </li>
@@ -90,8 +90,11 @@ export default {
             let goToAnchorIndex = parseInt(this.touch.anchorIndex) + parseInt(delta)
             this._scrollTo(goToAnchorIndex)
         },
+        selectItem(item) {
+            this.$emit('select', item)
+        },
         scroll(pos) {
-            this.scrollY = pos.y
+            this.scrollY = pos.y    
         },
         _scrollTo(index) {
             // 避免点到A跟#边缘的地方,index为null,后面会报错

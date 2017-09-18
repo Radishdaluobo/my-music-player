@@ -1,6 +1,9 @@
 <template>
     <div class="singer">
-        <listvue :data="singers"></listvue>
+        <listvue :data="singers" @select="selectSinger"></listvue>
+        <keep-alive>
+            <router-view></router-view>
+        </keep-alive>
     </div>
 </template>
 
@@ -76,6 +79,11 @@ export default {
             })
             let singer = hot.concat(ret).concat(other)
             return singer
+        },
+        selectSinger(singer) {
+            this.$router.push({
+                path: `/singer/${singer.id}`
+            })
         }
     },
     components: {
