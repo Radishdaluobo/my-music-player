@@ -12,6 +12,7 @@ import { getSingerList } from '../../api/singer'
 import { ERR_OK } from 'common/js/config'
 import Singer from 'common/js/singer'
 import listvue from '../../base/listview/listvue'
+// import { mapMutations } from 'vuex'
 
 const HOT_NAME = '热门歌手'
 const HOT_SINGER_LEN = 10
