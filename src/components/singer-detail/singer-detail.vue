@@ -1,23 +1,41 @@
 <template>
-    <transition name= "slide">
+    <transition name="slide">
         <div class="singer-detail">
             singer-detail
         </div>
     </transition>
 </template>
 <script>
-
+import { mapGetters } from 'vuex'
+import { getSingerDetail } from '../../api/singer'
+import { ERR_OK } from 'common/js/config'
 export default {
     data() {
         return {
 
         }
     },
+    computed: {
+        ...mapGetters([
+            'singer'
+        ])
+    },
     created() {
-
+        this._getSingerDetail()
     },
     methods: {
-
+        _getSingerDetail() {
+            // 处理边界情况
+            if (!this.singer.id) {
+                this.$router.push('/singer')
+                return
+            }
+            getSingerDetail(this.singer.id).then((res) => {
+                if (res.code === ERR_OK) {
+                    console.log(res.data.list)
+                }
+            })
+        }
     },
     components: {
     }
