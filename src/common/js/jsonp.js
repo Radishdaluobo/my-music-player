@@ -16,6 +16,7 @@ export default function jsonp(url, data, options) {
 function param(data) {
     let params = ''
     for (var k in data) {
+        // 边界处理
         data[k] !== undefined ? data[k] : ''
         params += '&' + k + '=' + encodeURIComponent(data[k])
     }

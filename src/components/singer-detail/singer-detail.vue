@@ -9,6 +9,8 @@
 import { mapGetters } from 'vuex'
 import { getSingerDetail } from '../../api/singer'
 import { ERR_OK } from 'common/js/config'
+import { createSong } from 'common/js/song'
+
 export default {
     data() {
         return {
@@ -32,9 +34,20 @@ export default {
             }
             getSingerDetail(this.singer.id).then((res) => {
                 if (res.code === ERR_OK) {
-                    console.log(res.data.list)
+                    this._normalizeSongs(res.data.list)
                 }
             })
+        },
+        _normalizeSongs(songList) {
+            let res = []
+            songList.forEach((item) => {
+                // 解构!!!
+                let { musicData } = item
+                // 这里必须要用一个返回值接收一下
+                let songList = createSong(musicData)
+                res.push(songList)
+            })
+            console.log(res)
         }
     },
     components: {
