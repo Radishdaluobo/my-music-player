@@ -12,6 +12,7 @@ import { getSingerList } from '../../api/singer'
 import { ERR_OK } from 'common/js/config'
 import Singer from 'common/js/singer'
 import listvue from '../../base/listview/listvue'
+// vuex的语法糖
 import { mapMutations } from 'vuex'
 
 const HOT_NAME = '热门歌手'
@@ -85,9 +86,12 @@ export default {
             this.$router.push({
                 path: `/singer/${singer.id}`
             })
+            // 映射之后调用setSinger,将singer数据传入,实现了对一个mutation的提交
             this.setSinger(singer)
         },
+        // 拓展对象符的方式,调mapMutations
         ...mapMutations({
+            // 做对象的映射,把mutation的修改映射成一个方法对象名
            setSinger: 'SET_SINGER'
         })
     },
