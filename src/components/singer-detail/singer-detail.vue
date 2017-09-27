@@ -15,12 +15,16 @@ import { createSong } from 'common/js/song'
 export default {
     data() {
         return {
-            title: '',
-            bgImage: '',
             songList: []
         }
     },
     computed: {
+        title() {
+            return this.singer.name
+        },
+        bgImage() {
+            return this.singer.avatar
+        },
         ...mapGetters([
             'singer'
         ])
@@ -37,8 +41,6 @@ export default {
             }
             getSingerDetail(this.singer.id).then((res) => {
                 if (res.code === ERR_OK) {
-                    this.title = res.data.singer_name
-                    this.bgImage = `http://y.gtimg.cn/music/photo_new/T001R300x300M000${res.data.singer_mid}.jpg?max_age=2592000`
                     this.songList = this._normalizeSongs(res.data.list)
                 }
             })

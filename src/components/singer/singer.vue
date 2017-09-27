@@ -1,5 +1,6 @@
 <template>
     <div class="singer">
+        <!--注意这里是select-->
         <listvue :data="singers" @select="selectSinger"></listvue>
         <keep-alive>
             <router-view></router-view>
@@ -83,6 +84,7 @@ export default {
             return singer
         },
         selectSinger(singer) {
+            console.log('singer', singer)
             this.$router.push({
                 path: `/singer/${singer.id}`
             })
