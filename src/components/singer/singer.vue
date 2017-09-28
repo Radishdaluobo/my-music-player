@@ -84,7 +84,6 @@ export default {
             return singer
         },
         selectSinger(singer) {
-            console.log('singer', singer)
             this.$router.push({
                 path: `/singer/${singer.id}`
             })
@@ -99,6 +98,11 @@ export default {
     },
     components: {
         listvue
+    },
+    watch: {
+        '$router'(to, from) {
+            console.log(to, from)
+        }
     }
 }
 </script>
