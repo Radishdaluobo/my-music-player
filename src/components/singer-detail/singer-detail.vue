@@ -28,7 +28,6 @@ export default {
         ])
     },
     created() {
-        console.log('singerDetail页面')
         this._getSingerDetail()
     },
     methods: {

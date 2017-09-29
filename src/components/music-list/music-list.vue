@@ -4,20 +4,17 @@
             <i class="icon-back"></i>
         </div>
         <h1 class="title">{{title}}</h1>
-        <div class="bg-image">
+        <div class="bg-image" ref="bgImage">
             <img :src="bgImage" class="image" />
-            <div class="filter"></div>
         </div>
-        <div class="songList">
-            <scroll>
-                <ul>
-                    <li v-for="song in songs">
-                        <h2>{{song.name}}</h2>
-                    </li>
-                </ul>
-            </scroll>
-        </div>
-    
+        <div class="filter" ref="filter" :style="filterHeight"></div>
+        <scroll @scroll="scroll" class="songList" :probeType="probeType" :data="songs" :listen-scroll="listenScroll" :style="fixedTop">
+            <ul>
+                <li v-for="song in songs">
+                    <h2>{{song.name}}</h2>
+                </li>
+            </ul>
+        </scroll>
     </div>
 </template>
 
@@ -40,14 +37,47 @@ export default {
     },
     data() {
         return {
-
+            y: 0,
+            scrollY: 0
+        }
+    },
+    computed: {
+        fixedTop() {
+            return `padding-top:${this.y - 35}px`
+        },
+        filterHeight() {
+            const screenHeight = document.documentElement.clientHeight
+            return `height:${screenHeight - 35}px`
         }
     },
     created() {
+        this.listenScroll = true
+        this.probeType = 3
+    },
+    mounted() {
+        setTimeout(() => {
+            this._initScrollTop()
+        }, 20)
     },
     methods: {
+        _initScrollTop() {
+            console.log(document.documentElement.clientHeight)
+            this.y = this.$refs.bgImage.clientHeight
+        },
         back() {
             this.$router.back()
+        },
+        scroll(pos) {
+            this.scrollY = pos.y
+        }
+    },
+    watch: {
+        scrollY(newy) {
+            console.log(newy, this.y)
+            if (-newy > this.y - 35) {
+                return
+            }
+            this.$refs.filter.style.transform = `translate3d(0,${newy}px,0)`
         }
     },
     components: {
@@ -98,9 +128,15 @@ export default {
             overflow :hidden
             .image
                 width: 100%
-        .songList
+        .filter
             width: 100%
-            height: 50%
             background :$color-background
+        .songList
             z-index :50
+            position :fixed
+            top: 40px
+            bottom: 0
+            left: 0
+            right: 0
+            overflow :hidden
 </style>
