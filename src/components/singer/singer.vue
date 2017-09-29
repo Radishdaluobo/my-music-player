@@ -2,9 +2,7 @@
     <div class="singer">
         <!--注意这里是select-->
         <listvue :data="singers" @select="selectSinger"></listvue>
-        <keep-alive>
-            <router-view></router-view>
-        </keep-alive>
+        <router-view></router-view>
     </div>
 </template>
 
@@ -93,7 +91,7 @@ export default {
         // 拓展对象符的方式,调mapMutations
         ...mapMutations({
             // 做对象的映射,把mutation的修改映射成一个方法对象名
-           setSinger: 'SET_SINGER'
+            setSinger: 'SET_SINGER'
         })
     },
     components: {
