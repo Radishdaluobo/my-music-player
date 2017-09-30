@@ -9,17 +9,14 @@
         </div>
         <div class="filter" ref="filter" :style="filterHeight"></div>
         <scroll @scroll="scroll" class="songList" :probeType="probeType" :data="songs" :listen-scroll="listenScroll" :style="fixedTop">
-            <ul>
-                <li v-for="song in songs">
-                    <h2>{{song.name}}</h2>
-                </li>
-            </ul>
+            <song-list :songs="songs"></song-list>
         </scroll>
     </div>
 </template>
 
 <script>
 import Scroll from 'base/scroll/scroll'
+import songList from 'base/song-list/song-list'
 export default {
     props: {
         title: {
@@ -61,7 +58,6 @@ export default {
     },
     methods: {
         _initScrollTop() {
-            console.log(document.documentElement.clientHeight)
             this.y = this.$refs.bgImage.clientHeight
         },
         back() {
@@ -73,7 +69,6 @@ export default {
     },
     watch: {
         scrollY(newy) {
-            console.log(newy, this.y)
             if (-newy > this.y - 35) {
                 return
             }
@@ -81,7 +76,8 @@ export default {
         }
     },
     components: {
-        Scroll
+        Scroll,
+        songList
     }
 
 }
