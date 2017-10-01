@@ -96,11 +96,6 @@ export default {
     },
     components: {
         listvue
-    },
-    watch: {
-        '$router'(to, from) {
-            console.log(to, from)
-        }
     }
 }
 </script>

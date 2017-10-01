@@ -7,7 +7,8 @@
         <div class="bg-image" ref="bgImage" :style="bgStyle">
             <div class="filter" ref="filter"></div>
         </div>
-        <scroll @scroll="scroll" class="list" ref="list" :probeType="probeType" :data="songs" :listen-scroll="listenScroll">
+        <div class="bg-layer" ref="layer"></div>
+        <scroll @scroll="scroll" class="list" :style="paddingTop" ref="list" :probe-type="probeType" :data="songs" :listen-scroll="listenScroll">
             <div class="song-list-wrapper">
                 <song-list :songs="songs"></song-list>
             </div>
@@ -18,6 +19,8 @@
 <script>
 import Scroll from 'base/scroll/scroll'
 import songList from 'base/song-list/song-list'
+
+const RESERVED_HEIGHT = 40
 export default {
     props: {
         title: {
@@ -35,13 +38,16 @@ export default {
     },
     data() {
         return {
-            y: 0,
-            scrollY: 0
+            scrollY: 0,
+            imageHeight: 0
         }
     },
     computed: {
         bgStyle() {
             return `background-image: url(${this.bgImage})`
+        },
+        paddingTop() {
+            return `padding-top:${this.imageHeight - RESERVED_HEIGHT}px`
         }
     },
     created() {
@@ -50,18 +56,28 @@ export default {
     },
     mounted() {
         // this.$refs.list拿到的是一个vue component实例,所以要继续.$el拿到DOM对象
-        this.$refs.list.$el.style.top = `${this.$refs.bgImage.clientHeight}px`
+        // this.$refs.list.$el.style.top = `${this.$refs.bgImage.clientHeight}px`
+        this._initScrollTop()
+
     },
     methods: {
+        _initScrollTop() {
+            this.imageHeight = this.$refs.bgImage.clientHeight
+        },
         back() {
             this.$router.back()
         },
-        scroll() {
-
+        scroll(pos) {
+            this.scrollY = pos.y
         }
     },
     watch: {
+        scrollY(newY) {
+            if (-newY < this.imageHeight - RESERVED_HEIGHT) {
+                this.$refs.layer.style.transform = `translate3d(0,${newY}px,0)`
+            }
 
+        }
     },
     components: {
         Scroll,
@@ -120,11 +136,16 @@ export default {
                 height: 100%
                 width: 100%
                 background :rgba(7, 17, 27, 0.4)
+        .bg-layer
+            height: 100%
+            background: $color-background
         .list
             position: fixed
-            top: 0
+            top: 40px
             bottom: 0
             width: 100%         
-            background: $color-background
-            // overflow :hidden
+            overflow :hidden
+            .song-list-wrapper
+                margin-bottom :263px
+            
 </style>

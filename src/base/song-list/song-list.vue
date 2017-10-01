@@ -20,7 +20,7 @@ export default {
     },
     // 为了保证DOM已经渲染完成
     mounted() {
-        console.log('this.songs3', this.songs)
+       
     },
     methods: {
         getDesc(song) {
@@ -35,7 +35,7 @@ export default {
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
     .song-list
-        padding:20px 30px
+        // padding:20px 30px
         .title
             font-size: $font-size-mediium   
         .desc
