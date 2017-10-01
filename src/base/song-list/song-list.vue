@@ -1,9 +1,9 @@
 <template>
     <div class="song-list">
         <ul>
-            <li v-for="song in songs">
-                <h2 class="title">{{song.name}}</h2>
-                <p class="desc">{{song.singer + '·' +song.album}}</p>
+            <li v-for="song in songs" class="item">
+                <h2 class="name">{{song.name}}</h2>
+                <p class="desc">{{getDesc(song)}}</p>
             </li>
         </ul>
     </div>
@@ -23,7 +23,9 @@ export default {
         console.log('this.songs3', this.songs)
     },
     methods: {
-
+        getDesc(song) {
+            return `${song.singer} · ${song.album} `
+        }
     },
     watch: {
 
