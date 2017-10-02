@@ -6,11 +6,21 @@
         <h1 class="title" v-html="title"></h1>
         <div class="bg-image" ref="bgImage" :style="bgStyle">
             <div class="filter" ref="filter"></div>
+            <div class="play-wrapper">
+                <div ref="playBtn" v-show="songs.length>0" class="play">
+                    <i class="icon-play"></i>
+                    <span class="text">随机播放全部</span>
+                </div>
+            </div>
         </div>
         <div class="bg-layer" ref="layer"></div>
         <scroll @scroll="scroll" class="list" :style="paddingTop" ref="list" :probe-type="probeType" :data="songs" :listen-scroll="listenScroll">
             <div class="song-list-wrapper">
                 <song-list :songs="songs"></song-list>
+                <div v-show="!songs.length" class="loading-container">
+                    <loading></loading>
+                </div>
+                <div :style="changeBSHeight"></div>
             </div>
         </scroll>
     </div>
@@ -19,6 +29,10 @@
 <script>
 import Scroll from 'base/scroll/scroll'
 import songList from 'base/song-list/song-list'
+import { prefixStyle } from 'common/js/dom.js'
+import Loading from 'base/loading/loading'
+const transform = prefixStyle('transform')
+
 
 const RESERVED_HEIGHT = 40
 export default {
@@ -48,6 +62,10 @@ export default {
         },
         paddingTop() {
             return `padding-top:${this.imageHeight - RESERVED_HEIGHT}px`
+        },
+        // 我也不知道为什么加padding-bottom和margin-bottom就是不行
+        changeBSHeight() {
+            return `height:${this.imageHeight - RESERVED_HEIGHT}px`
         }
     },
     created() {
@@ -73,15 +91,20 @@ export default {
     },
     watch: {
         scrollY(newY) {
-            if (-newY < this.imageHeight - RESERVED_HEIGHT) {
-                this.$refs.layer.style.transform = `translate3d(0,${newY}px,0)`
+            if (newY < 0 && -newY < this.imageHeight - RESERVED_HEIGHT) {
+                this.$refs.layer.style[transform] = `translate3d(0,${newY}px,0)`
+            } else if (newY > 0) {
+                this.$refs.layer.style[transform] = `translate3d(0,${newY}px,0)`
+                let percent = 1 + newY / this.imageHeight
+                this.$refs.bgImage.style['transform'] = `scale3d(${percent},${percent},1)`
             }
 
         }
     },
     components: {
         Scroll,
-        songList
+        songList,
+        Loading
     }
 
 }
@@ -128,7 +151,25 @@ export default {
             padding-top: 70%
             // 注意这两条background属性
             background-size: cover
+            background-origin :top 
             // background-position :center
+            .play-wrapper
+                font-size: $font-size-small
+                color: $color-theme
+                position: absolute
+                bottom: 40px
+                left: 50%
+                transform : translateX(-50%)
+                .play
+                    border:1px solid $color-theme
+                    padding:5px
+                    border-radius :15px  
+                    .icon-play
+                        display :inline-block
+                        vertical-align :middle
+                    .text
+                        display:inlune-block
+                        vertical-align :middle     
             .filter
                 position: absolute
                 top: 0
@@ -139,6 +180,7 @@ export default {
         .bg-layer
             height: 100%
             background: $color-background
+            z-index:50
         .list
             position: fixed
             top: 40px
@@ -146,6 +188,10 @@ export default {
             width: 100%         
             overflow :hidden
             .song-list-wrapper
-                margin-bottom :263px
-            
+                padding:20px 30px
+                .loading-container
+                    position: absolute
+                    width: 100%
+                    top: 50%
+                    transform: translateY(-50%)   
 </style>
