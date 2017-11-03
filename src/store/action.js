@@ -1,0 +1,1 @@
+// action一般处理异步操作或则对mutation的封装,比如某个动作需要触发多个mutation的时候
