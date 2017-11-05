@@ -8,10 +8,8 @@
                 <div class="back">
                     <i class="icon-back"></i>
                 </div>
-                <div class="title">
-                    <h2 class="title" v-html="currentSong.name"></h2>
-                    <h3 class="subtitle" v-html="currentSong.singer"></h3>
-                </div>
+                <h2 class="title" v-html="currentSong.name"></h2>
+                <h3 class="subtitle" v-html="currentSong.singer"></h3>
             </div>
             <div class="middle">
                 <div class="middle-l">
@@ -92,13 +90,56 @@ export default {
     @import "../../common/stylus/variable.styl"
     @import "../../common/stylus/mixin.styl" 
     .player
-        position:fixed
-        top:0
-        left:0
-        right:0
-        bottom:0
         .normal-player
-            width:100%
-            height:100%
+            position:fixed
+            top:0
+            left:0
+            right:0
+            bottom:0
+            z-index: 150
+            background: $color-background
+            .background
+                position :absolute
+                top:0
+                left:0
+                width:100%
+                height:100%
+                z-index:-1
+                opacity :0.6
+                filter:blur(20px)
+            .top
+                position: relative
+                margin-bottom: 25px
+                .back
+                    position : absolute
+                    top:0
+                    left:0
+                    z-index:50
+                    .icon-back
+                        display :block
+                        padding:9px
+                        font-size: $font-size-large-x
+                        color: $color-theme
+                        transform:rotate(-90deg)
+                .title
+                    width: 70%
+                    margin: 0 auto
+                    line-height: 40px
+                    no-wrap()
+                    text-align: center
+                    font-size: $font-size-large
+                    color: $color-text
+                .subtitle
+                    line-height: 20px
+                    text-align: center
+                    font-size: $font-size-medium
+                    color: $color-text
+            .middle
+                position: fixed
+                width: 100%
+                top: 80px
+                bottom: 170px
+                white-space: nowrap
+                font-size: 0
 
 </style>
