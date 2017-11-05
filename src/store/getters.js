@@ -17,5 +17,5 @@ export const currentIndex = state => state.currentIndex
 // 这里相当于计算属性
 export const currentSong = state => {
     // 边界处理
-    return state.playlist[state.currentIndex] || {}
+    return state.playList[state.currentIndex] || {}
 }
