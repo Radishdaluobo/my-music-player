@@ -14,7 +14,7 @@
                 </div>
                 <div class="middle">
                     <div class="middle-l">
-                        <div class="cd-wrapper">
+                        <div class="cd-wrapper" ref="cdWrapper">
                             <div class="cd">
                                 <img class="cd-image" :src="currentSong.image" />
                             </div>
@@ -94,6 +94,7 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
+import animations from 'create-keyframe-animation'
 export default {
     computed: {
         ...mapGetters([
@@ -110,12 +111,55 @@ export default {
         showFullScreen() {
             this.setFullScreen(true)
         },
+        _getPosAndScale() {
+            const sWidth = 40
+            const lWidth = window.innerWidth
+            const paddingLeft = 20
+            const bHeight = 50
+            const tHeight = 80
+            const x = window.innerWidth / 2 - paddingLeft - sWidth / 2
+            const y = -(window.innerHeight - tHeight - sWidth / 2 - bHeight / 2)
+            const scale = sWidth / lWidth
+            console.log(x, y, scale)
+            return {
+                x,
+                y,
+                scale: scale
+            }
+        },
         ...mapMutations({
             setFullScreen: 'SET_FULL_SCREEN'
         })
     },
     created() {
-
+        var { x, y, scale } = this._getPosAndScale()
+        let animation = {
+            '0%': {
+                x: 0,
+                y: 0,
+                scale: 1
+            },
+            '90%': {
+                x,
+                y,
+                scale: 1.1 * scale
+            },
+            '100%': {
+                x,
+                y,
+                scale
+            }
+        }
+        animations.registerAnimation({
+            name: 'move',
+            animation,
+            presets: {
+                duration: 1000,
+                easing: 'linear'
+            }
+        })
+        animations.runAnimation(this.$refs.cdWrapper, 'move', function () {
+        })
     }
 }
 </script>
