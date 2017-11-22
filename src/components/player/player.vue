@@ -1,6 +1,6 @@
 <template>
     <div class="player" v-show="playList.length>0">
-        <transition name="normal">
+        <transition name="normal" @enter="enter" @after-enter="afterEnter" @leave="leave" @after-leave="afterLeave">
             <div class="normal-player" v-show="fullScreen">
                 <div class="background">
                     <img width="100%" height="100%" :src="currentSong.image" />
@@ -93,75 +93,103 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
-import animations from 'create-keyframe-animation'
-export default {
-    computed: {
-        ...mapGetters([
-            'playList',
-            'currentIndex',
-            'fullScreen',
-            'currentSong'
-        ])
-    },
-    methods: {
-        hideFullScreen() {
-            this.setFullScreen(false)
+    import {
+        mapGetters,
+        mapMutations
+    } from 'vuex'
+    import {
+        prefixStyle
+    } from 'common/js/dom.js'
+    import animations from 'create-keyframe-animation'
+    
+    const transform = prefixStyle('transform')
+    export default {
+        computed: {
+            ...mapGetters([
+                'playList',
+                'currentIndex',
+                'fullScreen',
+                'currentSong'
+            ])
         },
-        showFullScreen() {
-            this.setFullScreen(true)
-        },
-        _getPosAndScale() {
-            const sWidth = 40
-            const lWidth = window.innerWidth
-            const paddingLeft = 20
-            const bHeight = 50
-            const tHeight = 80
-            const x = window.innerWidth / 2 - paddingLeft - sWidth / 2
-            const y = -(window.innerHeight - tHeight - sWidth / 2 - bHeight / 2)
-            const scale = sWidth / lWidth
-            console.log(x, y, scale)
-            return {
-                x,
-                y,
-                scale: scale
-            }
-        },
-        ...mapMutations({
-            setFullScreen: 'SET_FULL_SCREEN'
-        })
-    },
-    created() {
-        var { x, y, scale } = this._getPosAndScale()
-        let animation = {
-            '0%': {
-                x: 0,
-                y: 0,
-                scale: 1
+        methods: {
+            hideFullScreen() {
+                this.setFullScreen(false)
             },
-            '90%': {
-                x,
-                y,
-                scale: 1.1 * scale
+            showFullScreen() {
+                this.setFullScreen(true)
             },
-            '100%': {
-                x,
-                y,
-                scale
-            }
+            enter(el, done) {
+                const {
+                    x,
+                    y,
+                    scale
+                } = this._getPosAndScale()
+                let animation = {
+                    '0%': {
+                        transform: `translate3d(${x}px,${y}px,0) scale(${scale})`
+                    },
+                    '60%': {
+                        transform: `translate3d(0,0,0) scale(1.1)`
+                    },
+                    '100%': {
+                        transform: `translate3d(0,0,0) scale(1)`
+                    }
+                }
+                animations.registerAnimation({
+                    name: 'move',
+                    animation,
+                    presets: {
+                        duration: 400,
+                        easing: 'linear'
+                    }
+                })
+                animations.runAnimation(this.$refs.cdWrapper, 'move', done)
+            },
+            afterEnter() {
+                animations.unregisterAnimation('move')
+                this.$refs.cdWrapper.style.animation = ''
+            },
+            leave(el, done) {
+                this.$refs.cdWrapper.style.transition = 'all 0.4s'
+                const {
+                    x,
+                    y,
+                    scale
+                } = this._getPosAndScale()
+                this.$refs.cdWrapper.style[transform] = `translate3d(${x}px,${y}px,0) scale(${scale})`
+                // transitionend 事件在 CSS 完成过渡后触发。
+                this.$refs.cdWrapper.addEventListener('transitionend', done)
+            },
+            afterLeave() {
+                this.$refs.cdWrapper.style.transition = ''
+                this.$refs.cdWrapper.style[transform] = ''
+            },
+            _getPosAndScale() {
+                const sWidth = 40
+                const lWidth = window.innerWidth
+                const paddingLeft = 20
+                const bHeight = 50
+                const tHeight = 80
+                const x = -(window.innerWidth / 2 - paddingLeft - sWidth / 2)
+                const y = window.innerHeight - tHeight - sWidth / 2 - bHeight / 2
+                const scale = sWidth / lWidth
+                console.log(x, y, scale)
+                return {
+                    x,
+                    y,
+                    scale: scale
+                }
+            },
+            ...mapMutations({
+                setFullScreen: 'SET_FULL_SCREEN'
+            })
+        },
+    
+        created() {
+    
         }
-        animations.registerAnimation({
-            name: 'move',
-            animation,
-            presets: {
-                duration: 1000,
-                easing: 'linear'
-            }
-        })
-        animations.runAnimation(this.$refs.cdWrapper, 'move', function () {
-        })
     }
-}
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
