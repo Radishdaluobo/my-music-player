@@ -35,7 +35,7 @@
                         <b class="dot"></b>
                     </div>
                     <div class="progress-wrapper">
-                        <span class="time time-l">1:00</span>
+                        <span class="time time-l">{{formateTime(currentTime)}}</span>
                         <div class="progress-bar-wrapper">
                             <div class="progress-bar">
                                 <div class="bar-inner">
@@ -46,7 +46,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="time time-r">4:20</div>
+                        <div class="time time-r">{{formateTime(currentSong.duration)}}</div>
                     </div>
                     <div class="operators">
                         <div class="icon i-left">
@@ -89,146 +89,161 @@
                 </div>
             </div>
         </transition>
-        <audio :src="currentSong.url" ref="audio"></audio>
+        <audio :src="currentSong.url" ref="audio" @timeupdate="updateTime"></audio>
     </div>
 </template>
 
 <script>
-    import {
-        mapGetters,
-        mapMutations
-    } from 'vuex'
-    import {
-        prefixStyle
-    } from 'common/js/dom.js'
-    import animations from 'create-keyframe-animation'
-    
-    const transform = prefixStyle('transform')
-    export default {
-        computed: {
-            ...mapGetters([
-                'playList',
-                'currentIndex',
-                'fullScreen',
-                'currentSong',
-                'playing'
-            ])
+import { mapGetters, mapMutations } from 'vuex'
+import { prefixStyle } from 'common/js/dom.js'
+import animations from 'create-keyframe-animation'
+
+const transform = prefixStyle('transform')
+export default {
+    data() {
+        return {
+            currentTime: 0
+        }
+    },
+    computed: {
+        ...mapGetters([
+            'playList',
+            'currentIndex',
+            'fullScreen',
+            'currentSong',
+            'playing'
+        ])
+    },
+    methods: {
+        hideFullScreen() {
+            this.setFullScreen(false)
         },
-        methods: {
-            hideFullScreen() {
-                this.setFullScreen(false)
-            },
-            showFullScreen() {
-                this.setFullScreen(true)
-            },
-            enter(el, done) {
-                const {
-                    x,
-                    y,
-                    scale
-                } = this._getPosAndScale()
-                let animation = {
-                    '0%': {
-                        transform: `translate3d(${x}px,${y}px,0) scale(${scale})`
-                    },
-                    '60%': {
-                        transform: `translate3d(0,0,0) scale(1.1)`
-                    },
-                    '100%': {
-                        transform: `translate3d(0,0,0) scale(1)`
-                    }
+        showFullScreen() {
+            this.setFullScreen(true)
+        },
+        enter(el, done) {
+            const { x, y, scale } = this._getPosAndScale()
+            let animation = {
+                '0%': {
+                    transform: `translate3d(${x}px,${y}px,0) scale(${scale})`
+                },
+                '60%': {
+                    transform: `translate3d(0,0,0) scale(1.1)`
+                },
+                '100%': {
+                    transform: `translate3d(0,0,0) scale(1)`
                 }
-                animations.registerAnimation({
-                    name: 'move',
-                    animation,
-                    presets: {
-                        duration: 400,
-                        easing: 'linear'
-                    }
-                })
-                animations.runAnimation(this.$refs.cdWrapper, 'move', done)
-            },
-            afterEnter() {
-                animations.unregisterAnimation('move')
-                this.$refs.cdWrapper.style.animation = ''
-            },
-            leave(el, done) {
-                this.$refs.cdWrapper.style.transition = 'all 0.4s'
-                const {
-                    x,
-                    y,
-                    scale
-                } = this._getPosAndScale()
-                this.$refs.cdWrapper.style[transform] = `translate3d(${x}px,${y}px,0) scale(${scale})`
-                // transitionend 事件在 CSS 完成过渡后触发。
-                this.$refs.cdWrapper.addEventListener('transitionend', done)
-            },
-            afterLeave() {
-                this.$refs.cdWrapper.style.transition = ''
-                this.$refs.cdWrapper.style[transform] = ''
-            },
-            _getPosAndScale() {
-                const sWidth = 40
-                const lWidth = window.innerWidth
-                const paddingLeft = 20
-                const bHeight = 50
-                const tHeight = 80
-                const x = -(window.innerWidth / 2 - paddingLeft - sWidth / 2)
-                const y = window.innerHeight - tHeight - sWidth / 2 - bHeight / 2
-                const scale = sWidth / lWidth
-                return {
-                    x,
-                    y,
-                    scale: scale
+            }
+            animations.registerAnimation({
+                name: 'move',
+                animation,
+                presets: {
+                    duration: 400,
+                    easing: 'linear'
                 }
-            },
-            toggleSong() {
-                this.setPlayingState(!this.playing)
-            },
-            prev() {
-                let index = this.currentIndex
-                if (index === 0) {
-                    index = this.playList.length - 1
-                } else {
-                    index--
-                }
-                this.setCurrentIndex(index)
-            },
-            next() {
-                let index = this.currentIndex
-                if (index === this.playList.length - 1) {
-                    index = 0
-                } else {
-                    index++
-                }
-                this.setCurrentIndex(index)
-            },
-            ...mapMutations({
-                setFullScreen: 'SET_FULL_SCREEN',
-                setCurrentIndex: 'SET_CURRENT_INDEX',
-                setPlayingState: 'SET_PLAYING_STATE'
+            })
+            animations.runAnimation(this.$refs.cdWrapper, 'move', done)
+        },
+        afterEnter() {
+            animations.unregisterAnimation('move')
+            this.$refs.cdWrapper.style.animation = ''
+        },
+        leave(el, done) {
+            this.$refs.cdWrapper.style.transition = 'all 0.4s'
+            const { x, y, scale } = this._getPosAndScale()
+            this.$refs.cdWrapper.style[transform] = `translate3d(${x}px,${y}px,0) scale(${scale})`
+            // transitionend 事件在 CSS 完成过渡后触发。
+            this.$refs.cdWrapper.addEventListener('transitionend', done)
+        },
+        afterLeave() {
+            this.$refs.cdWrapper.style.transition = ''
+            this.$refs.cdWrapper.style[transform] = ''
+        },
+        _getPosAndScale() {
+            const sWidth = 40
+            const lWidth = window.innerWidth
+            const paddingLeft = 20
+            const bHeight = 50
+            const tHeight = 80
+            const x = -(window.innerWidth / 2 - paddingLeft - sWidth / 2)
+            const y = window.innerHeight - tHeight - sWidth / 2 - bHeight / 2
+            const scale = sWidth / lWidth
+            return { x, y, scale }
+        },
+        toggleSong() {
+            this.setPlayingState(!this.playing)
+        },
+        prev() {
+            let index = this.currentIndex
+            if (index === 0) {
+                index = this.playList.length - 1
+            } else {
+                index--
+            }
+            this.setCurrentIndex(index)
+        },
+        next() {
+            let index = this.currentIndex
+            if (index === this.playList.length - 1) {
+                index = 0
+            } else {
+                index++
+            }
+            this.setCurrentIndex(index)
+        },
+        updateTime(e) {
+            this.currentTime = e.target.currentTime
+        },
+        formateTime(time) {
+            let min = time / 60 | 0
+            let s = time % 60 | 0
+            let _s = this._pad(s)
+            return min + ':' + _s
+        },
+        _pad(num, n = 2) {
+            // let d = String(num).length
+            // if (d >= n) {
+            //     return num
+            // }
+            // for (let i = d; i < n; i++) {
+            //     num = '0' + num
+            // }
+            // return num
+
+            // 下面是老师写的
+            let len = num.toString().length
+            while (len < n) {
+                num = '0' + num
+                len++
+            }
+            return num
+        },
+        ...mapMutations({
+            setFullScreen: 'SET_FULL_SCREEN',
+            setCurrentIndex: 'SET_CURRENT_INDEX',
+            setPlayingState: 'SET_PLAYING_STATE'
+        })
+    },
+    watch: {
+        playing(newPlaying) {
+            this.$nextTick(() => {
+                const audio = this.$refs.audio
+                newPlaying ? audio.play() : audio.pause()
             })
         },
-        watch: {
-            playing(newPlaying) {
-                this.$nextTick(() => {
-                    const audio = this.$refs.audio
-                    newPlaying ? audio.play() : audio.pause()
-                })
-            },
-            currentSong(oldSong, newSong) {
-                this.$nextTick(() => {
-                    const audio = this.$refs.audio
-                    if (newSong) {
-                        audio.play()
-                    }
-                })
-            }
-        },
-        created() {
-    
+        currentSong(oldSong, newSong) {
+            this.$nextTick(() => {
+                const audio = this.$refs.audio
+                if (newSong) {
+                    audio.play()
+                }
+            })
         }
+    },
+    created() {
+
     }
+}
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
