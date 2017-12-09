@@ -39,8 +39,8 @@
                         <div class="progress-bar-wrapper">
                             <div class="progress-bar">
                                 <div class="bar-inner">
-                                    <div class="progress"></div>
-                                    <div class="process-btn-wrapper">
+                                    <div class="progress" :style="progressWidth"></div>
+                                    <div class="process-btn-wrapper" :style="leftPosition">
                                         <div class="progress-btn"></div>
                                     </div>
                                 </div>
@@ -106,6 +106,14 @@ export default {
         }
     },
     computed: {
+        progressWidth() {
+            let percent = this.currentTime / this.currentSong.duration
+            return `width:${percent * 100}%`
+        },
+        leftPosition() {
+            let percent = this.currentTime / this.currentSong.duration
+            return `left:${percent * 100}%`
+        },
         ...mapGetters([
             'playList',
             'currentIndex',
@@ -393,7 +401,6 @@ export default {
                                     top: 0
                                     left: 0
                                     height:100%
-                                    width: 35%
                                     background : $color-theme
                                 .process-btn-wrapper
                                     position :absolute
