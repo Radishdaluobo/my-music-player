@@ -333,6 +333,10 @@ export default {
                             border-radius: 50%
                             box-sizing :border-box
                             overflow :hidden
+                            &.play
+                                animation:rotate 20s linear infinite
+                            &.pause
+                                aniamtion-play-state:paused
                             .cd-image
                                 margin:-10px 0 0 -10px
                 .middle-r
@@ -490,5 +494,13 @@ export default {
                 transition: all 0.4s
             &.mini-enter, &.mini-leave-to
                 opacity : 0
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg)
+    }
+    100% {
+        transform: rotate(360deg)
+    }
+}
 
 </style>
