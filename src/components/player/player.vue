@@ -15,7 +15,7 @@
                 <div class="middle">
                     <div class="middle-l">
                         <div class="cd-wrapper" ref="cdWrapper">
-                            <div class="cd">
+                            <div class="cd" :class="playRotate">
                                 <img class="cd-image" :src="currentSong.image" />
                             </div>
                         </div>
@@ -36,16 +36,7 @@
                     </div>
                     <div class="progress-wrapper">
                         <span class="time time-l">{{formateTime(currentTime)}}</span>
-                        <div class="progress-bar-wrapper">
-                            <div class="progress-bar">
-                                <div class="bar-inner">
-                                    <div class="progress" :style="progressWidth"></div>
-                                    <div class="process-btn-wrapper" :style="leftPosition">
-                                        <div class="progress-btn"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                          <progress-bar :percent="percent"></progress-bar>
                         <div class="time time-r">{{formateTime(currentSong.duration)}}</div>
                     </div>
                     <div class="operators">
@@ -56,7 +47,7 @@
                             <i class="icon-prev"></i>
                         </div>
                         <div class="icon i-center" @click="toggleSong()">
-                            <i class="needsclick icon-pause"></i>
+                            <i class="needsclick" :class="playingIcon"></i>
                         </div>
                         <div class="icon i-right" @click="next()">
                             <i class="icon-next"></i>
@@ -79,9 +70,9 @@
                     <h2 class="name" v-html="currentSong.name"></h2>
                     <h3 class="singer" v-html="currentSong.singer"></h3>
                 </div>
-                <div class="control">
+                <div class="control" @click.stop="toggleSong()">
                     <div class="progress-circle">
-                        <i class="icon-mini icon-pause-mini"></i>
+                        <i class="icon-mini" :class="playingIconMini"></i>
                     </div>
                 </div>
                 <div class="control">
@@ -89,6 +80,7 @@
                 </div>
             </div>
         </transition>
+        <!-- audio有timeupdate事件 -->
         <audio :src="currentSong.url" ref="audio" @timeupdate="updateTime"></audio>
     </div>
 </template>
@@ -97,6 +89,7 @@
 import { mapGetters, mapMutations } from 'vuex'
 import { prefixStyle } from 'common/js/dom.js'
 import animations from 'create-keyframe-animation'
+import progressBar from 'base/progress-bar/progress-bar'
 
 const transform = prefixStyle('transform')
 export default {
@@ -106,14 +99,26 @@ export default {
         }
     },
     computed: {
-        progressWidth() {
-            let percent = this.currentTime / this.currentSong.duration
-            return `width:${percent * 100}%`
+        playingIcon() {
+          return this.playing ? 'icon-pause' : 'icon-play'
         },
-        leftPosition() {
-            let percent = this.currentTime / this.currentSong.duration
-            return `left:${percent * 100}%`
+        playingIconMini() {
+          return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
         },
+        playRotate() {
+          return this.playing ? 'play' : 'play pause'
+        },
+        percent() {
+          return this.currentTime / this.currentSong.duration
+        },
+        // progressWidth() {
+        //     let percent = this.currentTime / this.currentSong.duration
+        //     return `width:${percent * 100}%`
+        // },
+        // leftPosition() {
+        //     let percent = this.currentTime / this.currentSong.duration
+        //     return `left:${percent * 100}%`
+        // },
         ...mapGetters([
             'playList',
             'currentIndex',
@@ -250,13 +255,16 @@ export default {
     },
     created() {
 
+    },
+    components: {
+      progressBar
     }
 }
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
     @import "../../common/stylus/variable.styl"
-    @import "../../common/stylus/mixin.styl" 
+    @import "../../common/stylus/mixin.styl"
 
     .player
         .normal-player
@@ -326,7 +334,7 @@ export default {
                         left: 10%
                         width: 80%
                         height: 100%
-                        .cd 
+                        .cd
                             width: 100%
                             height: 100%
                             border: 10px solid rgba(255, 255, 255, 0.1)
@@ -336,7 +344,7 @@ export default {
                             &.play
                                 animation:rotate 20s linear infinite
                             &.pause
-                                aniamtion-play-state:paused
+                                animation-play-state:paused
                             .cd-image
                                 margin:-10px 0 0 -10px
                 .middle-r
@@ -364,14 +372,14 @@ export default {
                     text-align :center
                     font-size :0
                     .dot
-                        display :inline-block 
+                        display :inline-block
                         vertical-align :middle
                         margin: 0 4px
                         width: 8px
                         height: 8px
                         border-radius :50%
-                        background: $color-text-l  
-                        &.active 
+                        background: $color-text-l
+                        &.active
                             width: 20px
                             border-radius :5px
                             background: $color-text-ll
@@ -389,45 +397,20 @@ export default {
                             text-align: left
                         &.time-r
                             text-align: right
-                    .progress-bar-wrapper
-                        flex: 1
-                        .progress-bar
-                            height:30px
-                            display: flex;
-                            align-items: center;
-                            .bar-inner
-                                height: 4px
-                                width:100%
-                                background :$color-background-d
-                                position :relative
-                                .progress
-                                    position :absolute
-                                    top: 0
-                                    left: 0
-                                    height:100%
-                                    background : $color-theme
-                                .process-btn-wrapper
-                                    position :absolute
-                                    top: -6px
-                                    .progress-btn
-                                        box-sizing :border-box
-                                        width:16px;
-                                        height:16px;
-                                        background:$color-theme
-                                        border: 3px solid $color-text
-                                        border-radius :50%
                 .operators
                     width: 80%
                     margin: 0 auto
                     display :flex
                     align-items: center
-                    .icon 
+                    .icon
                         flex: 1
                         color: $color-theme
                         text-align : center
-                        i 
+                        i
                             font-size :30px
                         & .icon-pause
+                            font-size :46px
+                        & .icon-play
                             font-size :46px
                         &.i-left
                             text-align :left
@@ -444,7 +427,7 @@ export default {
                     transition : all 0.3s cubic-bezier(0.86, 0.18, 0.82, 1.32)
             &.normal-enter, &.normal-leave-to
                 opacity :0
-                .top 
+                .top
                     transform: translate3d(0, -100px, 0)
                 .bottom
                     transform: translate3d(0, 100px, 0)
@@ -485,7 +468,7 @@ export default {
                 .progress-circle
                     position :relative
                     .icon-mini
-                        font-size :32px 
+                        font-size :32px
                         color: $color-theme-d
                 .icon-playlist
                     font-size: 30px
