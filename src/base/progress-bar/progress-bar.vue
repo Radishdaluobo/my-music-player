@@ -3,7 +3,7 @@
   <div class="progress-bar">
     <div class="bar-inner">
       <div class="progress" ref="progress"></div>
-      <div class="process-btn-wrapper" ref="btnWrapper" @touchstart="progressTouchStart" @touchmove="progressTouchMove" @toucheend="progressToucheEnd">
+      <div class="process-btn-wrapper" ref="btnWrapper" @touchstart="progressTouchStart" @touchmove="progressTouchMove" @touchend="progressToucheEnd">
         <div class="progress-btn"></div>
       </div>
     </div>
@@ -13,6 +13,7 @@
 
 <script>
 const processBtnWidth = 16
+
 export default {
   props: {
     percent: {
@@ -26,31 +27,38 @@ export default {
   methods: {
     progressTouchStart(e) {
       this.touch.initiated = true
+      this.touch.initWidth = Number(this.$refs.progress.style.width)
       this.touch.left1 = e.targetTouches[0].pageX
-      console.log('a', this.touch.left1)
     },
     progressTouchMove(e) {
       this.touch.left2 = e.targetTouches[0].pageX
-      console.log('b', this.touch.left2)
-      this.touch.offsetX = this.touch.left2 - this.touch.left1
-      console.log(this.touch.offsetX)
+      this.touch.offsetX = Math.max(this.touch.left2 - this.touch.left1, this.progressBarWidth)
+      this.setProcessWidth(this.touch.offsetX)
     },
     progressToucheEnd() {
       this.touch.initiated = false
+      // let percentChange = (this.touch.offsetX + this.touch.initWidth) / this.progressBarWidth
+      console.log(this.touch.offsetX, this.touch.initWidth, this.progressBarWidth)
+    },
+    setProcessWidth(progressWidth) {
+      this.$refs.progress.style.width = `${progressWidth}px`
+      this.$refs.btnWrapper.style.left = `${progressWidth}px`
     }
   },
   created() {
     this.touch = {}
+    this.progressBarWidth = 0
   },
   mounted() {
 
   },
   watch: {
     percent(newPercent) {
-      const progressBarWidth = this.$refs.progressBarWrapper.clientWidth - processBtnWidth
-      let progressWidth = progressBarWidth * newPercent
-      this.$refs.progress.style.width = `${progressWidth}px`
-      this.$refs.btnWrapper.style.left = `${progressWidth}px`
+      this.progressBarWidth = this.$refs.progressBarWrapper.clientWidth - processBtnWidth
+      let progressWidth = this.progressBarWidth * newPercent
+      if (!this.touch.initiated) {
+        this.setProcessWidth(progressWidth)
+      }
     }
   }
 }
