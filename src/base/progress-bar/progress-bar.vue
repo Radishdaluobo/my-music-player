@@ -52,15 +52,17 @@ export default {
       this.$refs.btnWrapper.style.left = `${progressWidth}px`
     },
     progressClick(e) {
-      let left = e.pageX
-      // console.log(document.documentElement.clientWidth)
-      let leftPosition = left - document.documentElement.clientWidth * 0.2
-      let percentChange = leftPosition / this.progressBarWidth
-      console.log('percentChange', percentChange)
+      // let left = e.pageX
+      // let leftPosition = left - document.documentElement.clientWidth * 0.2
+      // let percentChange = leftPosition / this.progressBarWidth
+      const width = e.offsetX || e.originalEvent.offsetX
+      console.log('width', width)
+      const percentChange = width / this.progressBarWidth
+      // console.log('e.offsetX', e.offsetX)
       this.$emit('percentChange', percentChange)
     },
     _triggerPercent() {
-      // const percent =(this.touch.offsetX + this.touch.initWidth) / this.progressBarWidth
+      // const percent =(this.touch.offsetX + this.touch.initWidth) / this.percentChange
       // touchMove的时候已经调用了setProcessWidth
       // 所以可以直接用以下
       const percent = this.$refs.progress.clientWidth / this.progressBarWidth
