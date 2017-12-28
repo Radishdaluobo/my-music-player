@@ -62,18 +62,18 @@
   <transition name="mini">
     <div class="mini-player" v-show="!fullScreen" @click="showFullScreen">
       <div class="icon">
-        <div class="image-wrapper">
+        <div class="image-wrapper" :class="playRotate">
           <img width="40" height="40" :src="currentSong.image" />
         </div>
       </div>
       <div class="text">
-        <h2 class="name" v-html="currentSong.name"></h2>
+        <h2 clashhhhs="name" v-html="currentSong.name"></h2>
         <h3 class="singer" v-html="currentSong.singer"></h3>
       </div>
       <div class="control" @click.stop="toggleSong()">
-        <div class="progress-circle">
-          <i class="icon-mini" :class="playingIconMini"></i>
-        </div>
+          <progress-circle :percent="percent" >
+            <i class="icon-mini" :class="playingIconMini"></i>
+          </progress-circle>
       </div>
       <div class="control">
         <i class="icon-playlist"></i>
@@ -95,6 +95,7 @@ import {
 } from 'common/js/dom.js'
 import animations from 'create-keyframe-animation'
 import progressBar from 'base/progress-bar/progress-bar'
+import progressCircle from 'base/progress-circle/progress-circle'
 
 const transform = prefixStyle('transform')
 export default {
@@ -287,7 +288,8 @@ export default {
 
   },
   components: {
-    progressBar
+    progressBar,
+    progressCircle
   }
 }
 </script>
@@ -477,6 +479,10 @@ export default {
                 .image-wrapper
                  border-radius :50%
                  overflow :hidden
+                 &.play
+                     animation:rotate 20s linear infinite
+                 &.pause
+                     animation-play-state:paused
             .text
                 flex: 1
                 display :flex
@@ -494,12 +500,16 @@ export default {
                     color: $color-text-d
             .control
                 flex:0 0 30px
+                width: 30px
                 padding: 0 10px
                 .progress-circle
                     position :relative
                     .icon-mini
+                        position:absolute
                         font-size :32px
                         color: $color-theme-d
+                        left: 0
+                        top: 0
                 .icon-playlist
                     font-size: 30px
                     color: $color-theme-d
