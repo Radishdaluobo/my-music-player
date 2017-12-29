@@ -41,7 +41,7 @@
         </div>
         <div class="operators">
           <div class="icon i-left">
-            <i class="icon-sequence"></i>
+            <i :class="playModeIcon" @click="changeMode"></i>
           </div>
           <div class="icon i-left" @click="prev()">
             <i class="icon-prev"></i>
@@ -71,9 +71,9 @@
         <h3 class="singer" v-html="currentSong.singer"></h3>
       </div>
       <div class="control" @click.stop="toggleSong()">
-          <progress-circle :percent="percent" >
-            <i class="icon-mini" :class="playingIconMini"></i>
-          </progress-circle>
+        <progress-circle :percent="percent">
+          <i class="icon-mini" :class="playingIconMini"></i>
+        </progress-circle>
       </div>
       <div class="control">
         <i class="icon-playlist"></i>
@@ -96,7 +96,9 @@ import {
 import animations from 'create-keyframe-animation'
 import progressBar from 'base/progress-bar/progress-bar'
 import progressCircle from 'base/progress-circle/progress-circle'
-
+import {
+  playMode
+} from 'common/js/config'
 const transform = prefixStyle('transform')
 export default {
   data() {
@@ -118,12 +120,16 @@ export default {
     percent() {
       return this.currentTime / this.currentSong.duration
     },
+    playModeIcon() {
+      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
+    },
     ...mapGetters([
       'playList',
       'currentIndex',
       'fullScreen',
       'currentSong',
-      'playing'
+      'playing',
+      'mode'
     ])
   },
   methods: {
@@ -262,10 +268,25 @@ export default {
     error() {
       this.songReady = false
     },
+    changeMode() {
+      let mode = this.mode
+      mode = (mode + 1) % 3
+      this.setPlayMode(mode)
+      if (this.mode === playMode.random) {
+        console.log(1111)
+        // this.playList =
+      } else if (this.mode === playMode.loop) {
+        // this.playList =
+        console.log(2222)
+      } else {
+        console.log(3333)
+      }
+    },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
       setCurrentIndex: 'SET_CURRENT_INDEX',
-      setPlayingState: 'SET_PLAYING_STATE'
+      setPlayingState: 'SET_PLAYING_STATE',
+      setPlayMode: 'SET_PLAY_MODE'
     })
   },
   watch: {
