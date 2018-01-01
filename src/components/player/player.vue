@@ -99,6 +99,9 @@ import progressCircle from 'base/progress-circle/progress-circle'
 import {
   playMode
 } from 'common/js/config'
+import {
+  shuffle
+} from 'common/js/util'
 const transform = prefixStyle('transform')
 export default {
   data() {
@@ -129,7 +132,8 @@ export default {
       'fullScreen',
       'currentSong',
       'playing',
-      'mode'
+      'mode',
+      'sequenceList'
     ])
   },
   methods: {
@@ -272,21 +276,30 @@ export default {
       let mode = this.mode
       mode = (mode + 1) % 3
       this.setPlayMode(mode)
+      let list = null
       if (this.mode === playMode.random) {
-        console.log(1111)
-        // this.playList =
-      } else if (this.mode === playMode.loop) {
-        // this.playList =
-        console.log(2222)
+        list = shuffle(this.sequenceList)
       } else {
-        console.log(3333)
+        list = this.sequenceList
       }
+      this.resetCurrentIndex(list)
+      this.setPlayList(list)
+    },
+    resetCurrentIndex(list) {
+      // console.log('list', list)
+      const id = list.findIndex((item) => {
+        return item.id === this.currentSong.id
+      })
+      console.log(id)
+      this.setCurrentIndex(id)
     },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
       setCurrentIndex: 'SET_CURRENT_INDEX',
       setPlayingState: 'SET_PLAYING_STATE',
-      setPlayMode: 'SET_PLAY_MODE'
+      setPlayMode: 'SET_PLAY_MODE',
+      setSequenceList: 'SET_SEQUENCE_LIST',
+      setPlayList: 'SET_PLAYLIST'
     })
   },
   watch: {
@@ -297,6 +310,9 @@ export default {
       })
     },
     currentSong(oldSong, newSong) {
+      if (oldSong.id === newSong.id) {
+        return
+      }
       this.$nextTick(() => {
         const audio = this.$refs.audio
         if (newSong) {

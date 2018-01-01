@@ -5,9 +5,9 @@ export const singer = state => state.singer
 export const playing = state => state.playing
 
 export const fullScreen = state => state.fullScreen
-
+// 播放时的歌单顺序
 export const playList = state => state.playList
-
+// 歌单序列
 export const sequenceList = state => state.sequenceList
 
 export const mode = state => state.mode

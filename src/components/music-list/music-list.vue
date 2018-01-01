@@ -160,7 +160,7 @@ export default {
             padding-top: 70%
             // 注意这两条background属性
             background-size: cover
-            background-origin :top 
+            background-origin :top
             // background-position :center
             .play-wrapper
                 font-size: $font-size-small
@@ -172,13 +172,13 @@ export default {
                 .play
                     border:1px solid $color-theme
                     padding:5px
-                    border-radius :15px  
+                    border-radius :15px
                     .icon-play
                         display :inline-block
                         vertical-align :middle
                     .text
                         display:inlune-block
-                        vertical-align :middle     
+                        vertical-align :middle
             .filter
                 position: absolute
                 top: 0
@@ -194,7 +194,7 @@ export default {
             position: fixed
             top: 40px
             bottom: 0
-            width: 100%         
+            width: 100%
             overflow :hidden
             .song-list-wrapper
                 padding:20px 30px
@@ -202,5 +202,5 @@ export default {
                     position: absolute
                     width: 100%
                     top: 50%
-                    transform: translateY(-50%)   
+                    transform: translateY(-50%)
 </style>
