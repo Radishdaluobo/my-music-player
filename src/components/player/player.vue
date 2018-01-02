@@ -81,7 +81,7 @@
     </div>
   </transition>
   <!-- audio有timeupdate事件 -->
-  <audio :src="currentSong.url" ref="audio" @play="ready" @error="error" @timeupdate="updateTime"></audio>
+  <audio :src="currentSong.url" ref="audio" @play="ready" @error="error" @timeupdate="updateTime" @ended="end"></audio>
 </div>
 </template>
 
@@ -286,12 +286,22 @@ export default {
       this.setPlayList(list)
     },
     resetCurrentIndex(list) {
-      // console.log('list', list)
       const id = list.findIndex((item) => {
         return item.id === this.currentSong.id
       })
-      console.log(id)
       this.setCurrentIndex(id)
+    },
+    end() {
+      if (this.playMode === 'loop') {
+        this.loop()
+      } else {
+        this.next()
+      }
+    },
+    loop() {
+      const audio = this.$refs.audio
+      audio.currentTime = 0
+      audio.play()
     },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',

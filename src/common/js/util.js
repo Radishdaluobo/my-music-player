@@ -1,11 +1,12 @@
 export function shuffle(arr) {
-  for (let i = 0; i < arr.length; i++) {
+  const _arr = arr.slice()
+  for (let i = 0; i < _arr.length; i++) {
     const j = getRandomInt(0, i)
-    const z = arr[i]
-    arr[i] = arr[j]
-    arr[j] = z
+    const z = _arr[i]
+    _arr[i] = _arr[j]
+    _arr[j] = z
   }
-  return arr
+  return _arr
 }
 
 function getRandomInt(min, max) {

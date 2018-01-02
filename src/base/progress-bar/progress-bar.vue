@@ -38,7 +38,6 @@ export default {
         return
       }
       this.touch.left2 = e.targetTouches[0].pageX
-      // console.log(this.touch.left1, this.touch.left2)
       this.touch.offsetX = this.touch.left2 - this.touch.left1
       const leftPosition = Math.min(Math.max(parseFloat(this.touch.offsetX) + parseFloat(this.touch.initWidth), 0), this.progressBarWidth)
       this.setProcessWidth(leftPosition)
@@ -55,10 +54,11 @@ export default {
       // let left = e.pageX
       // let leftPosition = left - document.documentElement.clientWidth * 0.2
       // let percentChange = leftPosition / this.progressBarWidth
-      const width = e.offsetX || e.originalEvent.offsetX
-      console.log('width', width)
+      // const width = e.offsetX || e.originalEvent.offsetX
+      // 注意这里getBoundingClientRect的用法
+      const rect = this.$refs.progress.getBoundingClientRect()
+      const width = e.pageX - rect.left
       const percentChange = width / this.progressBarWidth
-      // console.log('e.offsetX', e.offsetX)
       this.$emit('percentChange', percentChange)
     },
     _triggerPercent() {
