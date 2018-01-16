@@ -1,7 +1,6 @@
 <template>
 <div class="player" v-show="playList.length>0">
-  <transition name="normal" @enter="enter"
-  @after-enter="afterEnter" @leave="leave" @after-leave="afterLeave">
+  <transition name="normal" @enter="enter" @after-enter="afterEnter" @leave="leave" @after-leave="afterLeave">
     <div class="normal-player" v-show="fullScreen">
       <div class="background">
         <img width="100%" height="100%" :src="currentSong.image" />
@@ -13,7 +12,7 @@
         <h2 class="title" v-html="currentSong.name"></h2>
         <h3 class="subtitle" v-html="currentSong.singer"></h3>
       </div>
-      <div class="middle">
+      <div class="middle" @touchstart.prevent="middleTouchStart" @touchmove.prevent="middleTouchMove" @touchend="middleTouchEnd">
         <div class="middle-l">
           <div class="cd-wrapper" ref="cdWrapper">
             <div class="cd" :class="playRotate">
@@ -21,19 +20,21 @@
             </div>
           </div>
           <div class="playing-lyric-wrapper">
-            <div class="playing-lyric"></div>
+            <div class="playing-lyric">sdfdfdsfsdfsdf</div>
           </div>
         </div>
-        <div class="middle-r">
+        <scroll class="middle-r" ref="lyricList" v-if="currentLyric" :data="currentLyric.lines">
           <div class="lyric-wrapper">
-            <div class="text"></div>
+            <div>
+              <p ref="lyricLine" class="text" :class="{'current': currentLineNum === index}" v-for="(line,index) in currentLyric.lines">{{line.txt}}</p>
+            </div>
           </div>
-        </div>
+        </scroll>
       </div>
       <div class="bottom">
         <div class="dot-wrapper">
-          <b class="dot active"></b>
-          <b class="dot"></b>
+          <b class="dot" :class="{'active':currentShow === 'cd'}"></b>
+          <b class="dot" :class="{'active':currentShow === 'lyric'}"></b>
         </div>
         <div class="progress-wrapper">
           <span class="time time-l">{{formateTime(currentTime)}}</span>
@@ -97,18 +98,23 @@ import {
 import animations from 'create-keyframe-animation'
 import progressBar from 'base/progress-bar/progress-bar'
 import progressCircle from 'base/progress-circle/progress-circle'
+import Scroll from 'base/scroll/scroll'
 import {
   playMode
 } from 'common/js/config'
 import {
   shuffle
 } from 'common/js/util'
+import Lyric from 'lyric-parser'
 const transform = prefixStyle('transform')
 export default {
   data() {
     return {
       songReady: false,
-      currentTime: 0
+      currentTime: 0,
+      currentLyric: null,
+      currentLineNum: 0,
+      currentShow: 'cd'
     }
   },
   computed: {
@@ -207,6 +213,7 @@ export default {
     },
     toggleSong() {
       this.setPlayingState(!this.playing)
+      this.currentLyric.togglePlay()
     },
     prev() {
       if (!this.songReady) {
@@ -262,10 +269,12 @@ export default {
       return num
     },
     percentChange(percent) {
-      this.$refs.audio.currentTime = this.currentSong.duration * percent
-      if (!this.playing) {
-        this.playing = !this.playing
-      }
+      const currentTime = this.currentSong.duration * percent
+      this.$refs.audio.currentTime = currentTime
+      // this.currentLyric.seek(2000)
+      // if (!this.playing) {
+      //   this.playing = !this.playing
+      // }
     },
     ready() {
       this.songReady = true
@@ -304,6 +313,53 @@ export default {
       audio.currentTime = 0
       audio.play()
     },
+    getLyric() {
+      this.currentSong.getLyric().then((lyric) => {
+        this.currentLyric = new Lyric(lyric, this.lyricHandle)
+        if (this.playing) {
+          this.currentLyric.play()
+        }
+      })
+    },
+    lyricHandle({
+      lineNum,
+      txt
+    }) {
+      this.currentLineNum = lineNum
+      if (lineNum <= 5) {
+        // 如果在顶部,直接滚动到顶部
+        this.$refs.lyricList.scrollTo(0, 0, 1000)
+      } else {
+        let lineEl = this.$refs.lyricLine[lineNum - 5]
+        this.$refs.lyricList.scrollToElement(lineEl, 1000)
+      }
+    },
+    middleTouchStart(e) {
+      this.touch.initiated = true
+      this.touch.startX = e.touches[0].pageX
+      this.touch.startY = e.touches[0].pageY
+    },
+    middleTouchMove(e) {
+      if (!this.touch.initiated) {
+        return
+      }
+      const deltaX = e.touches[0].pageX - this.touch.startX
+      const deltaY = e.touches[0].pageY - this.touch.startY
+      // 如果纵轴的偏移大于横轴的偏移,则return
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        return
+      }
+      console.log(deltaX, deltaY)
+      if (this.currentShow === 'cd') {
+        let offsetX = Math.max(Math.min(0, deltaX), -this.windowWidth)
+        this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetX}px,0,0)`
+      } else {
+        return
+      }
+    },
+    middleTouchEnd(e) {
+      this.touch.initiated = false
+    },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
       setCurrentIndex: 'SET_CURRENT_INDEX',
@@ -328,16 +384,19 @@ export default {
         const audio = this.$refs.audio
         if (newSong) {
           audio.play()
+          this.getLyric()
         }
       })
     }
   },
   created() {
-
+    this.windowWidth = window.innerWidth
+    this.touch = {}
   },
   components: {
     progressBar,
-    progressCircle
+    progressCircle,
+    Scroll
   }
 }
 </script>
@@ -428,22 +487,27 @@ export default {
                             .cd-image
                                 margin:-10px 0 0 -10px
                 .middle-r
-                    display :inline-block
-                    vertical-align :top
-                    width: 100%
-                    height: 100%
-                    overflow :hidden
-                    .lyric-wrapper
-                        width: 80%
-                        margin: 0 auto
-                        text-align :center
-                        overflow :hidden
-                        .text
-                            line-height :32px
-                            color: $color-text-l
-                            font-size: $font-size-medium
-                            &.current
-                                color: $color-text
+                  display: inline-block
+                  vertical-align: top
+                  width: 100%
+                  height: 100%
+                  overflow: hidden
+                  .lyric-wrapper
+                    width: 80%
+                    margin: 0 auto
+                    overflow: hidden
+                    text-align: center
+                    .text
+                      line-height: 32px
+                      color: $color-text-l
+                      font-size: $font-size-medium
+                      &.current
+                        color: $color-text
+                    .pure-music
+                      padding-top: 50%
+                      line-height: 32px
+                      color: $color-text-l
+                      font-size: $font-size-medium
             .bottom
                 position : absolute
                 bottom : 50px

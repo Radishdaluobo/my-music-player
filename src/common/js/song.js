@@ -1,6 +1,16 @@
-import { getVKey } from '../../api/song'
-import { getUid } from './uid'
-import { ERR_OK } from 'common/js/config'
+import {
+  getVKey,
+  getLyric
+} from '../../api/song'
+import {
+  getUid
+} from './uid'
+import {
+  ERR_OK
+} from 'common/js/config'
+import {
+  Base64
+} from 'js-base64'
 
 let urlMap = {}
 export default class Song {
@@ -30,6 +40,21 @@ export default class Song {
     }
   }
 
+  getLyric() {
+    if (this.lyric) {
+      return Promise.resolve(this.lyric)
+    }
+    return new Promise((resolve, reject) => {
+      getLyric(this.mid).then((res) => {
+        if (res.retcode === ERR_OK) {
+          this.lyric = Base64.decode(res.lyric)
+          resolve(this.lyric)
+        } else {
+          reject('no lyric')
+        }
+      })
+    })
+  }
   _genUrl() {
     if (this.url) {
       return
@@ -43,7 +68,6 @@ export default class Song {
     })
   }
 }
-
 
 export function createSong(musicData) {
   return new Song({
