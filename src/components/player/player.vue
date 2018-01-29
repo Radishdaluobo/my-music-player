@@ -107,6 +107,7 @@ import {
 } from 'common/js/util'
 import Lyric from 'lyric-parser'
 const transform = prefixStyle('transform')
+const transition = prefixStyle('transition')
 export default {
   data() {
     return {
@@ -271,10 +272,10 @@ export default {
     percentChange(percent) {
       const currentTime = this.currentSong.duration * percent
       this.$refs.audio.currentTime = currentTime
-      // this.currentLyric.seek(2000)
-      // if (!this.playing) {
-      //   this.playing = !this.playing
-      // }
+      this.currentLyric.seek(currentTime * 1000)
+      if (!this.playing) {
+        this.playing = !this.playing
+      }
     },
     ready() {
       this.songReady = true
@@ -349,15 +350,38 @@ export default {
       if (Math.abs(deltaY) > Math.abs(deltaX)) {
         return
       }
-      console.log(deltaX, deltaY)
       if (this.currentShow === 'cd') {
         let offsetX = Math.max(Math.min(0, deltaX), -this.windowWidth)
         this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetX}px,0,0)`
+        this.touch.movePercent = Math.abs(offsetX / this.windowWidth)
+        this.$refs.cdWrapper.style.opacity = 1 - this.touch.movePercent
       } else {
-        return
+        let offsetX = Math.min(Math.max(0, deltaX), this.windowWidth)
+        this.$refs.lyricList.$el.style[transform] = `translate3d(${-this.windowWidth + offsetX}px,0,0)`
+        this.touch.movePercent = Math.abs(offsetX / this.windowWidth)
+        this.$refs.cdWrapper.style.opacity = this.touch.movePercent
       }
     },
-    middleTouchEnd(e) {
+    middleTouchEnd() {
+      if (this.currentShow === 'cd') {
+        if (this.touch.movePercent > 0.1) {
+          this.$refs.lyricList.$el.style[transition] = `all 0.2s ease-in-out`
+          this.$refs.lyricList.$el.style[transform] = `translate3d(${-this.windowWidth}px,0,0)`
+          this.$refs.cdWrapper.style.opacity = 0
+          this.currentShow = 'lyric'
+        } else {
+          this.$refs.lyricList.$el.style[transform] = `translate3d(0,0,0)`
+        }
+      } else {
+        if (this.touch.movePercent > 0.1) {
+          this.$refs.lyricList.$el.style[transition] = `all 0.2s ease-in-out`
+          this.$refs.lyricList.$el.style[transform] = `translate3d(0,0,0)`
+          this.$refs.cdWrapper.style.opacity = 1
+          this.currentShow = 'cd'
+        } else {
+          this.$refs.lyricList.$el.style[transform] = `translate3d(${-this.windowWidth}px,0,0)`
+        }
+      }
       this.touch.initiated = false
     },
     ...mapMutations({

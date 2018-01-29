@@ -1,85 +1,106 @@
 <template>
-    <div class="recommend">
-        <Scroll class="recommend-content" ref="scroll" :data="discList">
-            <!--这里要保证recommends有内容才渲染,recommends取值是异步的-->
-            <div>
-                <div v-if="recommends.length" class="slider-wrapper">
-                    <slider>
-                        <div v-for="item in recommends" class="slider-item">
-                            <a :href="item.linkUrl">
-                                <img class="needsclick" @load="loadImage()" :src="item.picUrl" />
-                            </a>
-                        </div>
-                    </slider>
-                </div>
-                <div class="recommend-list">
-                    <h1 class="list-title">热门歌单推荐</h1>
-                    <ul>
-                        <li class="item" v-for="item in discList">
-                            <div class="icon">
-                                <img width="60" height="60" v-lazy="item.imgurl" />
-                            </div>
-                            <div class="text">
-                                <h3 class="name" v-html="item.creator.name"></h3>
-                                <p class="desc" v-html="item.dissname"></p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
+<div class="recommend" ref="recommend">
+  <Scroll class="recommend-content" ref="scroll" :data="discList">
+    <!--这里要保证recommends有内容才渲染,recommends取值是异步的-->
+    <div>
+      <div v-if="recommends.length" class="slider-wrapper">
+        <slider>
+          <div v-for="item in recommends" class="slider-item">
+            <a :href="item.linkUrl">
+                <img class="needsclick" @load="loadImage()" :src="item.picUrl" />
+            </a>
+          </div>
+        </slider>
+      </div>
+      <div class="recommend-list">
+        <h1 class="list-title">热门歌单推荐</h1>
+        <ul>
+          <li class="item" v-for="item in discList">
+            <div class="icon">
+              <img width="60" height="60" v-lazy="item.imgurl" />
             </div>
-            <div class="loading-container" v-show="!discList.length">
-                <Loading></Loading>
+            <div class="text">
+              <h3 class="name" v-html="item.creator.name"></h3>
+              <p class="desc" v-html="item.dissname"></p>
             </div>
-        </Scroll>
+          </li>
+        </ul>
+      </div>
     </div>
+    <div class="loading-container" v-show="!discList.length">
+      <Loading></Loading>
+    </div>
+  </Scroll>
+</div>
 </template>
 
 <script>
-import { getRecommend, getDiscList } from '../../api/recommend'
-import { ERR_OK } from 'common/js/config'
+import {
+  getRecommend,
+  getDiscList
+} from '../../api/recommend'
+import {
+  ERR_OK
+} from 'common/js/config'
 import Scroll from 'base/scroll/scroll'
 import Slider from 'base/slider/slider'
 import Loading from 'base/loading/loading'
+import {
+  playlistMixin
+} from 'common/js/mixin'
+import {
+  mapGetters
+} from 'vuex'
 
 export default {
-    data() {
-        return {
-            recommends: [],
-            discList: []
-        }
-    },
-    created() {
-        this._getRecommend()
-        this._getDiscList()
-
-    },
-    methods: {
-        _getRecommend() {
-            getRecommend().then((res) => {
-                if (res.code === ERR_OK) {
-                    this.recommends = res.data.slider
-                }
-            })
-        },
-        _getDiscList() {
-            getDiscList().then((res) => {
-                if (res.code === ERR_OK) {
-                    this.discList = res.data.list
-                }
-            })
-        },
-        loadImage() {
-            if (!this.imageLoadCheck) {
-                this.$refs.scroll.refresh()
-                this.imageLoadCheck = true
-            }
-        }
-    },
-    components: {
-        Slider,
-        Scroll,
-        Loading
+  mixins: [playlistMixin],
+  computed: {
+    ...mapGetters([
+      'playList'
+    ])
+  },
+  data() {
+    return {
+      recommends: [],
+      discList: []
     }
+  },
+  created() {
+    this._getRecommend()
+    this._getDiscList()
+
+  },
+  methods: {
+    _getRecommend() {
+      getRecommend().then((res) => {
+        if (res.code === ERR_OK) {
+          this.recommends = res.data.slider
+        }
+      })
+    },
+    _getDiscList() {
+      getDiscList().then((res) => {
+        if (res.code === ERR_OK) {
+          this.discList = res.data.list
+        }
+      })
+    },
+    loadImage() {
+      if (!this.imageLoadCheck) {
+        this.$refs.scroll.refresh()
+        this.imageLoadCheck = true
+      }
+    },
+    handlePlayList() {
+      const bottom = this.playList ? 50 : 0
+      this.$refs.recommend.style.bottom = bottom + 'px'
+    }
+  },
+  components: {
+    Slider,
+    Scroll,
+    Loading
+  }
 }
 </script>
 

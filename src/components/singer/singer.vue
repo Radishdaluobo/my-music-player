@@ -1,5 +1,5 @@
 <template>
-    <div class="singer">
+    <div class="singer" href="singer">
         <!--注意这里是select-->
         <listvue :data="singers" @select="selectSinger"></listvue>
         <router-view></router-view>
@@ -11,12 +11,21 @@ import { getSingerList } from '../../api/singer'
 import { ERR_OK } from 'common/js/config'
 import Singer from 'common/js/singer'
 import listvue from '../../base/listview/listvue'
+import {
+  playlistMixin
+} from 'common/js/mixin'
 // vuex的语法糖
-import { mapMutations } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 
 const HOT_NAME = '热门歌手'
 const HOT_SINGER_LEN = 10
 export default {
+  mixins: [playlistMixin],
+  computed: {
+    ...mapGetters([
+      'playList'
+    ])
+  },
     data() {
         return {
             singers: []
@@ -87,6 +96,10 @@ export default {
             })
             // 映射之后调用setSinger,将singer数据传入,实现了对一个mutation的提交
             this.setSinger(singer)
+        },
+        handlePlayList() {
+          const bottom = this.playList ? 50 : 0
+          this.$refs.singer.style.bottom = bottom + 'px'
         },
         // 拓展对象符的方式,调mapMutations
         ...mapMutations({
