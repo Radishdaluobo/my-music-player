@@ -1,5 +1,5 @@
 <template>
-    <div class="singer" href="singer">
+    <div class="singer" ref="singer">
         <!--注意这里是select-->
         <listvue :data="singers" @select="selectSinger"></listvue>
         <router-view></router-view>

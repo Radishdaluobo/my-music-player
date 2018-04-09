@@ -14,6 +14,8 @@ export const mode = state => state.mode
 
 export const currentIndex = state => state.currentIndex
 
+export const getDisc = state => state.disc
+
 // 这里相当于计算属性
 export const currentSong = state => {
     // 边界处理
